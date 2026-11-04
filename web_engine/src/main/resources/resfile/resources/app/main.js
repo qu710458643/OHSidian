@@ -125,6 +125,309 @@ if (remote && typeof remote.initialize === 'function') {
 			win.once('ready-to-show', () => hideSystemDecorButtons(win));
 		} catch (e) {}
 	});
+
+	// Titlebar probe: snapshots the web titlebar state at increasing delays and
+	// on every body class change. The web window-control buttons have been
+	// observed to disappear once the workspace finishes loading; this probe
+	// records which body class flips (e.g. is-fullscreen hides .titlebar via
+	// CSS) and what the titlebar/button geometry looks like at each stage.
+	// v2: also records per-button svg presence/fill/computed color/visibility,
+	// the mod-right container background, and elementFromPoint() at each
+	// button center to detect overlapping covers.
+	app.on('web-contents-created', (event, webContents) => {
+		webContents.on('did-finish-load', () => {
+			try {
+				webContents.executeJavaScript(`(function(){
+					if (window.__hmosTitlebarProbe) return;
+					window.__hmosTitlebarProbe = true;
+					var hmosTimer = null;
+					function hmosCs(el, p) {
+						try { return getComputedStyle(el).getPropertyValue(p).trim(); } catch (e) { return '?'; }
+					}
+					function hmosHit(el) {
+						if (!el) return 'null';
+						var cn = el.className;
+						if (cn && cn.baseVal !== undefined) cn = cn.baseVal;
+						return el.tagName + '.' + String(cn).split(' ').join('.');
+					}
+					function hmosBtnInfo(el){
+						try {
+							var r = el.getBoundingClientRect();
+							var cs = getComputedStyle(el);
+							var svg = el.querySelector('svg');
+							var svgInfo = 'no-svg';
+							if (svg) {
+								var kid = svg.firstElementChild;
+								svgInfo = 'svg:' + svg.outerHTML.length +
+									' fill:' + hmosCs(svg, 'fill') +
+									' kfill:' + (kid ? hmosCs(kid, 'fill') : '-') +
+									' w:' + hmosCs(svg, 'width') + 'x' + hmosCs(svg, 'height');
+							}
+							var ex = Math.round(r.x + r.width / 2), ey = Math.round(r.y + r.height / 2);
+							var hit = (r.width > 0 && r.height > 0) ? hmosHit(document.elementFromPoint(ex, ey)) : 'zero-rect';
+							return el.className.split(' ').pop() + '@' + Math.round(r.x) + ',' + Math.round(r.y) +
+								' ' + Math.round(r.width) + 'x' + Math.round(r.height) +
+								' d:' + cs.display + ' o:' + cs.opacity +
+								' v:' + cs.visibility + ' c:' + cs.color +
+								' efp:' + hit + ' ' + svgInfo;
+						} catch (e) {
+							return 'err:' + e;
+						}
+					}
+					function hmosSnap(tag){
+						try {
+							var b = document.body;
+							var csB = getComputedStyle(b);
+							var tb = document.querySelector('.titlebar');
+							var tbInfo = 'none';
+							if (tb) {
+								var r = tb.getBoundingClientRect();
+								var cs = getComputedStyle(tb);
+								tbInfo = Math.round(r.x) + ',' + Math.round(r.y) +
+									' ' + Math.round(r.width) + 'x' + Math.round(r.height) +
+									' d:' + cs.display + ' h:' + cs.height +
+									' hh:' + csB.getPropertyValue('--header-height');
+							}
+							var rc = document.querySelector('.titlebar-button-container.mod-right');
+							var rcInfo = 'no-rc';
+							if (rc) {
+								var rr = rc.getBoundingClientRect();
+								rcInfo = Math.round(rr.x) + ',' + Math.round(rr.y) +
+									' ' + Math.round(rr.width) + 'x' + Math.round(rr.height) +
+									' bg:' + hmosCs(rc, 'background-color') +
+									' z:' + hmosCs(rc, 'z-index') +
+									' pe:' + hmosCs(rc, 'pointer-events');
+							}
+							var tt = document.querySelector('.titlebar-text');
+							var ttInfo = tt ? ('bg:' + hmosCs(tt, 'background-color') + ' z:' + hmosCs(tt, 'z-index')) : 'no-tt';
+							var btns = [];
+							document.querySelectorAll('.titlebar-button').forEach(function(el){
+								btns.push(hmosBtnInfo(el));
+							});
+							console.log('[HMOS-TITLEBAR] ' + tag +
+								' body=[' + b.className + ']' +
+								' vw=' + window.innerWidth + 'x' + window.innerHeight +
+								' dpr=' + window.devicePixelRatio +
+								' tb=' + tbInfo +
+								' rc=' + rcInfo +
+								' tt=' + ttInfo +
+								' btns=' + JSON.stringify(btns));
+						} catch (e) {
+							console.log('[HMOS-TITLEBAR] ' + tag + ' error: ' + e);
+						}
+					}
+					hmosSnap('t0');
+					[3, 8, 15, 25, 40, 60, 120, 180, 300].forEach(function(s){
+						setTimeout(function(){ hmosSnap('t' + s + 's'); }, s * 1000);
+					});
+					new MutationObserver(function(){
+						clearTimeout(hmosTimer);
+						hmosTimer = setTimeout(function(){ hmosSnap('bodyclass'); }, 300);
+					}).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+					var tb0 = document.querySelector('.titlebar');
+					if (tb0) {
+						new MutationObserver(function(){
+							console.log('[HMOS-TB-MUT] titlebar subtree changed');
+							clearTimeout(hmosTimer);
+							hmosTimer = setTimeout(function(){ hmosSnap('tbmut'); }, 300);
+						}).observe(tb0, { childList: true, subtree: true, characterData: true });
+					}
+				})();`, true).catch(() => {});
+			} catch (e) {}
+		});
+	});
+}
+
+// ---------------------------------------------------------------------------
+// Windows platform-class fix (titlebar covered by workspace tab header).
+//
+// app.js's platform normalizer maps window.process.platform to a body class:
+//   win32 -> mod-windows, darwin -> mod-macos, linux -> mod-linux (nie()).
+// This port reports none of those, so the body gets NO platform class, while
+// the frame style still resolves to "hidden" (ipc "frame" unhandled ->
+// Eoe()'s `|| "hidden"` fallback), i.e. is-hidden-frameless: the workspace
+// tab header container overlays the titlebar strip.
+//
+// On stock Windows that layout works ONLY because .mod-windows unlocks:
+//   - .is-hidden-frameless.mod-windows .titlebar { z-index:
+//     var(--layer-popover); pointer-events: none; background: transparent }
+//     -> the DOM min/max/close buttons paint ABOVE the tab bar;
+//   - .titlebar-button-container { pointer-events: auto } -> clicks land;
+//   - --frame-right-space: calc(126px - var(--frame-ribbon-right)) plus
+//     .workspace-tab-header-container padding/:after -> tabs reserve the
+//     button zone instead of sliding under it;
+//   - .mod-windows .titlebar-button { padding: 0 16px; height: 100% } ->
+//     Windows-sized hit areas (close hover turns red).
+// Without the class the tab header (background rgb(40,40,40)) paints over
+// the buttons: DOM says d:flex/o:1/visible but the button zone renders empty
+// and elementFromPoint() at the button centers returns
+// DIV.workspace-tab-header-spacer (probe v2 evidence, live6.log).
+//
+// app.js never reads mod-windows/mod-linux from JS (CSS hooks only, verified
+// against asar 1.15), so adding the class is side-effect free. mod-windows
+// and mod-linux are 100% identical in app.css; mod-windows matches this
+// port's Windows-style right-side controls. Injected at did-finish-load,
+// which fires before the workspace DOM mounts (~1.6s later), so the tab bar
+// is laid out with the reserve rules already active (no visible reflow).
+// ---------------------------------------------------------------------------
+{
+	const PLATFORM_CLASS_FIX = `(function(){
+		if (window.__hmosPlatformClassFixed) return 'already';
+		window.__hmosPlatformClassFixed = true;
+		try {
+			var b = document.body;
+			if (!b) return 'error:no-body';
+			if (b.classList.contains('mod-windows') || b.classList.contains('mod-linux') || b.classList.contains('mod-macos')) {
+				return 'present';
+			}
+			b.classList.add('mod-windows');
+			return 'added mod-windows';
+		} catch (e) {
+			return 'error:' + e;
+		}
+	})();`;
+
+	app.on('web-contents-created', (event, webContents) => {
+		webContents.on('did-finish-load', () => {
+			try {
+				webContents.executeJavaScript(PLATFORM_CLASS_FIX, true).then((r) => {
+					console.log('[HMOS-PLATFORM-CLASS] ' + r + ' (url=' + webContents.getURL() + ')');
+				}).catch(() => {});
+			} catch (e) {}
+		});
+	});
+}
+
+// ---------------------------------------------------------------------------
+// BrowserWindow capability diagnostics.
+//
+// Proven so far: unmaximize() EXISTS and works when invoked from JS
+// (state flips + window rect returns to normal; window ops bypass the ArkTS
+// AppWindowAdapter entirely — zero LogMethodCall entries during
+// maximize/unmaximize). Obsidian's window object === @electron/remote
+// getCurrentWindow(), i.e. the same proxy we test. Remaining suspects for
+// the earlier "unmaximize click does nothing" report: (1) devecocli ui click
+// double-firing (toggle unmax+max = net maximized), (2) isMaximized state
+// desync after restore() (JS test showed state=true with window at normal
+// rect). Test v3 below tracks viewport/bounds per stage, logs REALCLICK
+// isTrusted/detail on the maximize button, and clicks the real DOM button.
+// ---------------------------------------------------------------------------
+{
+	try {
+		const BW = electron.BrowserWindow;
+		if (BW && BW.prototype) {
+			console.log('[HMOS-BW-DBG] main BrowserWindow.prototype: ' +
+				Object.getOwnPropertyNames(BW.prototype).join(','));
+		} else {
+			console.log('[HMOS-BW-DBG] no BrowserWindow/prototype (BW=' + typeof BW + ')');
+		}
+	} catch (e) {
+		console.log('[HMOS-BW-DBG] err: ' + e);
+	}
+
+	const WIN_DBG = `(function(){
+		try {
+			var r = typeof require === 'function' ? require : null;
+			if (!r) { console.log('[HMOS-WIN-DBG] no require in renderer'); return; }
+			var remote = null;
+			try { remote = r('@electron/remote'); } catch (e) {
+				try { remote = r('electron').remote; } catch (e2) {}
+			}
+			if (!remote) { console.log('[HMOS-WIN-DBG] no remote module'); return; }
+			var w = remote.getCurrentWindow();
+			var o = w, depth = 0, chain = [];
+			while (o && depth < 6) {
+				chain.push('L' + depth + '[' + (o.constructor ? o.constructor.name : '?') + ']: ' + Object.getOwnPropertyNames(o).join(','));
+				o = Object.getPrototypeOf(o); depth++;
+			}
+			console.log('[HMOS-WIN-DBG] chain: ' + chain.join(' || '));
+			console.log('[HMOS-WIN-DBG] typeof: unmaximize=' + typeof w.unmaximize +
+				' maximize=' + typeof w.maximize +
+				' minimize=' + typeof w.minimize +
+				' isMaximized=' + typeof w.isMaximized +
+				' restore=' + typeof w.restore +
+				' recover=' + typeof w.recover +
+				' close=' + typeof w.close +
+				' setWindowButtonVisibility=' + typeof w.setWindowButtonVisibility);
+			if (!window.__hmosWinTest) {
+				window.__hmosWinTest = true;
+				var tlog = function(s){ console.log('[HMOS-WIN-TEST] ' + s); };
+				var vp = function(){ return innerWidth + 'x' + innerHeight; };
+				var st = function(){
+					var s = 'vp=' + vp();
+					try { s += ' isMax=' + w.isMaximized(); } catch (e) { s += ' isMax=ERR'; }
+					if (typeof w.isMinimized === 'function') { try { s += ' isMin=' + w.isMinimized(); } catch (e) {} }
+					if (typeof w.getBounds === 'function') { try { var b = w.getBounds(); s += ' bounds=' + b.x + ',' + b.y + ' ' + b.width + 'x' + b.height; } catch (e) {} }
+					return s;
+				};
+				var eremote = 'n/a';
+				try {
+					var _e = r('electron');
+					if (_e && _e.remote && _e.remote.getCurrentWindow) eremote = 'same=' + (_e.remote.getCurrentWindow() === w);
+					else if (_e) eremote = 'no-remote-getCW remoteType=' + typeof _e.remote;
+				} catch (e) { eremote = 'ERR:' + e.message; }
+				tlog('electron.remote ' + eremote);
+				tlog('typeof getBounds=' + typeof w.getBounds + ' isMinimized=' + typeof w.isMinimized + ' isMaximized=' + typeof w.isMaximized + ' unmaximize=' + typeof w.unmaximize);
+				var attach = function(n){
+					var btn = document.querySelector('.titlebar-button.mod-maximize');
+					if (btn) {
+						btn.addEventListener('click', function(ev){ tlog('REALCLICK trusted=' + ev.isTrusted + ' detail=' + ev.detail); }, true);
+						btn.addEventListener('dblclick', function(ev){ tlog('REALDBLCLICK'); }, true);
+						tlog('listeners on ' + btn.className);
+						return;
+					}
+					if (n < 24) setTimeout(function(){ attach(n + 1); }, 500);
+					else tlog('listeners: no btn');
+				};
+				attach(0);
+				var seq = [
+					['A0 initial', null],
+					['A1 after maximize()', 'max'],
+					['A2 after unmaximize()', 'unmax'],
+					['A3 after restore()', 'restore'],
+					['A4 after unmaximize()', 'unmax'],
+					['B1 after maximize()', 'max'],
+					['B2 after btn.click()', 'btn'],
+					['B3 after btn.click()', 'btn'],
+					['B4 after btn.click()', 'btn']
+				];
+				var i = 0;
+				var step = function(){
+					if (i >= seq.length) return;
+					var act = seq[i][1];
+					try {
+						if (act === 'max') w.maximize();
+						else if (act === 'unmax') w.unmaximize();
+						else if (act === 'restore') w.restore();
+						else if (act === 'btn') {
+							var btn = document.querySelector('.titlebar-button.mod-maximize');
+							if (btn) btn.click();
+							else tlog('btn NOT FOUND at step ' + i);
+						}
+					} catch (e) { tlog('step ' + i + ' err: ' + e); }
+					setTimeout(function(){
+						i++;
+						if (i < seq.length) { try { tlog(seq[i][0] + ': ' + st()); } catch (e) { tlog(seq[i][0] + ' st err: ' + e); } step(); }
+						else { try { tlog('FINAL: ' + st()); } catch (e) {} }
+					}, 3000);
+				};
+				setTimeout(function(){
+					try { tlog('A0 initial: ' + st()); } catch (e) { tlog('A0 st err: ' + e); }
+					step();
+				}, 5000);
+			}
+		} catch (e) {
+			console.log('[HMOS-WIN-DBG] err: ' + e);
+		}
+	})();`;
+
+	app.on('web-contents-created', (event, webContents) => {
+		webContents.on('did-finish-load', () => {
+			try {
+				webContents.executeJavaScript(WIN_DBG, true).catch(() => {});
+			} catch (e) {}
+		});
+	});
 }
 
 protocol.registerSchemesAsPrivileged([
