@@ -40,9 +40,7 @@
       {
         "name": "ohos.permission.WINDOW_TOPMOST"
       },
-      {
-        "name": "ohos.permission.kernel.ALLOW_WRITABLE_CODE_MEMORY"
-      },
+
       {
         "name": "ohos.permission.READ_PASTEBOARD",
         "reason": "$string:access_pasteboard",

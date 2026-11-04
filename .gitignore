@@ -72,3 +72,6 @@ build-profile.json5
 
 # Local properties
 local.properties
+
+# bitfun
+.bitfun/

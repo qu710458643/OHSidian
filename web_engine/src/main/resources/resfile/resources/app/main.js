@@ -25,6 +25,68 @@ if (remote && typeof remote.initialize === 'function') {
 	remote.initialize();
 }
 
+// ---------------------------------------------------------------------------
+// Popout-modal compatibility fix (needed for obsidian.asar >= 1.15.0)
+//
+// Obsidian 1.15.0 ships `settingsPopoutWindow: true` as the DEFAULT vault
+// config (the gne defaults table inside app.js). With that default, opening
+// Settings (the gear at the bottom-left) takes the popout-modal path:
+//
+//     Setting.open() -> my.open() -> She() -> IV() ->
+//     window.open('about:blank', '_blank', 'popup,width=900,height=700,...')
+//
+// i.e. it asks for a child BrowserWindow. This port cannot surface child
+// BrowserWindows (no native window is created for them), so the settings UI
+// renders into an invisible window: the gear appears dead (no error, no
+// modal). Any other popout-capable modal is affected the same way.
+//
+// Fix: intercept window.open for the Obsidian popout protocol (about:blank +
+// "popup..." features) in the renderer and return null. Obsidian's IV() is
+// designed to handle that (`let s = window.open(...); if (!s) return null`),
+// and my.open() then skips the popout branch, so the modal falls back to
+// opening inside the main window. Non-popup window.open calls are untouched
+// and keep flowing through the asar's own setWindowOpenHandler.
+// ---------------------------------------------------------------------------
+{
+	const POPOUT_FIX = `(function(){
+		if (window.__hmosPopoutFixed) return 'already';
+		window.__hmosPopoutFixed = true;
+		try {
+			var origOpen = window.open ? window.open.bind(window) : null;
+			window.open = function(u, n, f) {
+				var us = String(u), fs = String(f || '');
+				if (us.indexOf('about:blank') === 0 && fs.indexOf('popup') === 0) {
+					try { console.log('[HMOS-POPOUT-FIX] blocked popup window.open:', fs); } catch (e) {}
+					return null;
+				}
+				return origOpen ? origOpen.apply(window, arguments) : null;
+			};
+			return 'installed';
+		} catch (e) {
+			return 'error:' + e;
+		}
+	})();`;
+
+	app.on('web-contents-created', (event, webContents) => {
+		// Forward namespaced renderer diagnostics ([HMOS...]) to the main-process
+		// console so they are visible in hilog (tag: Electron).
+		try {
+			webContents.on('console-message', (e, level, message) => {
+				if (typeof message === 'string' && message.indexOf('[HMOS') === 0) {
+					console.log('[RCON-FIX]', message);
+				}
+			});
+		} catch (e) {}
+		webContents.on('did-finish-load', () => {
+			try {
+				webContents.executeJavaScript(POPOUT_FIX, true).then((r) => {
+					console.log('[HMOS-POPOUT-FIX] ' + r + ' (url=' + webContents.getURL() + ')');
+				}).catch(() => {});
+			} catch (e) {}
+		});
+	});
+}
+
 protocol.registerSchemesAsPrivileged([
 	{scheme: 'app', privileges: {standard: true, secure: true, supportFetchAPI: true, stream: true, codeCache: true}}
 ]);
@@ -610,6 +672,19 @@ try {
 } catch (e) {
 	if (e.code !== 'ENOENT') {
 		console.error(e);
+	}
+}
+
+// Remap the port's own version string ("5.0.0-Release") to the upstream Electron
+// version this engine is actually based on (34.5.0 / Chromium 132.0.6834.161 /
+// Node 20.18.1 / V8 13.2.152), so version gates inside obsidian.asar (which require
+// Electron >= 18) do not reject the app. Applied late — right before the asar is
+// loaded — in case requiring the electron module re-populates process.versions.
+try {
+	Object.defineProperty(process.versions, 'electron', {value: '34.5.0', writable: true, configurable: true});
+} catch (e) {
+	try { process.versions.electron = '34.5.0'; } catch (e2) {
+		console.warn('[HMOS-VERSION] failed to remap process.versions.electron', e2);
 	}
 }
 
