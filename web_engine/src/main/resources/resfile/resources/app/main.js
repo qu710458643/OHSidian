@@ -97,34 +97,48 @@ if (remote && typeof remote.initialize === 'function') {
 // ipcRenderer.sendSync("frame") resolves to "hidden"), so the two button sets
 // overlap at the top-right corner.
 //
-// Obsidian's own titlebar is the intended control surface: its buttons call
-// BrowserWindow minimize/maximize/close through the port adapter
-// (AppWindowAdapter::Maximize/Minimize/Close), and its title strip is a
-// -webkit-app-region:drag surface implemented via
-// AppWindowAdapter::StartWindowMoving. So hide the system decor buttons with
-// Electron's setWindowButtonVisibility() (wired to AppWindowAdapter::
-// SetWindowButtonVisibility) for every window as soon as it is created.
+// Two modes (HMOS_NATIVE_DECOR below):
+//  - native-decor (current): the SYSTEM buttons are the window control
+//    surface — true HarmonyOS style and native window-manager behavior.
+//    Obsidian's DOM buttons are hidden via the NATIVE_DECOR_CSS injection.
+//    Obsidian's title strip stays a -webkit-app-region:drag surface
+//    (AppWindowAdapter::StartWindowMoving), and mod-windows is still applied
+//    (PLATFORM_CLASS_FIX) so --frame-right-space keeps the tab bar clear of
+//    the decor button zone.
+//  - legacy: hide the system decor buttons with Electron's
+//    setWindowButtonVisibility() (wired to AppWindowAdapter::
+//    SetWindowButtonVisibility) for every window as soon as it is created;
+//    Obsidian's DOM buttons call BrowserWindow minimize/maximize/close
+//    through the port adapter (AppWindowAdapter::Maximize/Minimize/Close).
 // ---------------------------------------------------------------------------
 {
-	let hideSystemDecorButtons = (win) => {
-		if (!win || typeof win.setWindowButtonVisibility !== 'function') return false;
-		try {
-			win.setWindowButtonVisibility(false);
-			return true;
-		} catch (e) {
-			console.warn('[HMOS-DECOR] setWindowButtonVisibility(false) failed:', e);
-			return false;
-		}
-	};
+	// HMOS_NATIVE_DECOR: true = keep system-decor native HarmonyOS buttons,
+	// hide Obsidian's DOM buttons via CSS. false = legacy mode.
+	const HMOS_NATIVE_DECOR = true;
 
-	app.on('browser-window-created', (event, win) => {
-		hideSystemDecorButtons(win);
-		// The native window may not be fully wired when the event fires; retry
-		// once the window is ready so the decor buttons stay hidden.
-		try {
-			win.once('ready-to-show', () => hideSystemDecorButtons(win));
-		} catch (e) {}
-	});
+	if (!HMOS_NATIVE_DECOR) {
+		let hideSystemDecorButtons = (win) => {
+			if (!win || typeof win.setWindowButtonVisibility !== 'function') return false;
+			try {
+				win.setWindowButtonVisibility(false);
+				return true;
+			} catch (e) {
+				console.warn('[HMOS-DECOR] setWindowButtonVisibility(false) failed:', e);
+				return false;
+			}
+		};
+
+		app.on('browser-window-created', (event, win) => {
+			hideSystemDecorButtons(win);
+			// The native window may not be fully wired when the event fires; retry
+			// once the window is ready so the decor buttons stay hidden.
+			try {
+				win.once('ready-to-show', () => hideSystemDecorButtons(win));
+			} catch (e) {}
+		});
+	} else {
+		console.log('[HMOS-DECOR] native-decor mode: system buttons stay visible, DOM buttons hidden via CSS');
+	}
 
 	// Titlebar probe: snapshots the web titlebar state at increasing delays and
 	// on every body class change. The web window-control buttons have been
@@ -299,6 +313,40 @@ if (remote && typeof remote.initialize === 'function') {
 }
 
 // ---------------------------------------------------------------------------
+// Native-decor mode (HMOS_NATIVE_DECOR=true): hide Obsidian's DOM window
+// buttons (.titlebar-button-container) so only the system-decor HarmonyOS
+// buttons (min/max/close, drawn by the window manager at the top-right)
+// remain. mod-windows (PLATFORM_CLASS_FIX above) is still applied because
+// --frame-right-space keeps the workspace tab bar clear of the decor button
+// zone. Injected at did-finish-load, before the workspace DOM mounts.
+// ---------------------------------------------------------------------------
+{
+	const NATIVE_DECOR_CSS = `(function(){
+		if (window.__hmosNativeDecorCss) return 'already';
+		window.__hmosNativeDecorCss = true;
+		try {
+			var st = document.createElement('style');
+			st.id = 'hmos-native-decor';
+			st.textContent = '.titlebar-button-container{display:none !important;}';
+			(document.head || document.documentElement).appendChild(st);
+			return 'DOM buttons hidden';
+		} catch (e) {
+			return 'error:' + e;
+		}
+	})();`;
+
+	app.on('web-contents-created', (event, webContents) => {
+		webContents.on('did-finish-load', () => {
+			try {
+				webContents.executeJavaScript(NATIVE_DECOR_CSS, true).then((r) => {
+					console.log('[HMOS-NATIVE-DECOR] ' + r + ' (url=' + webContents.getURL() + ')');
+				}).catch(() => {});
+			} catch (e) {}
+		});
+	});
+}
+
+// ---------------------------------------------------------------------------
 // BrowserWindow capability diagnostics.
 //
 // Proven so far: unmaximize() EXISTS and works when invoked from JS
@@ -349,73 +397,11 @@ if (remote && typeof remote.initialize === 'function') {
 				' recover=' + typeof w.recover +
 				' close=' + typeof w.close +
 				' setWindowButtonVisibility=' + typeof w.setWindowButtonVisibility);
-			if (!window.__hmosWinTest) {
-				window.__hmosWinTest = true;
-				var tlog = function(s){ console.log('[HMOS-WIN-TEST] ' + s); };
-				var vp = function(){ return innerWidth + 'x' + innerHeight; };
-				var st = function(){
-					var s = 'vp=' + vp();
-					try { s += ' isMax=' + w.isMaximized(); } catch (e) { s += ' isMax=ERR'; }
-					if (typeof w.isMinimized === 'function') { try { s += ' isMin=' + w.isMinimized(); } catch (e) {} }
-					if (typeof w.getBounds === 'function') { try { var b = w.getBounds(); s += ' bounds=' + b.x + ',' + b.y + ' ' + b.width + 'x' + b.height; } catch (e) {} }
-					return s;
-				};
-				var eremote = 'n/a';
-				try {
-					var _e = r('electron');
-					if (_e && _e.remote && _e.remote.getCurrentWindow) eremote = 'same=' + (_e.remote.getCurrentWindow() === w);
-					else if (_e) eremote = 'no-remote-getCW remoteType=' + typeof _e.remote;
-				} catch (e) { eremote = 'ERR:' + e.message; }
-				tlog('electron.remote ' + eremote);
-				tlog('typeof getBounds=' + typeof w.getBounds + ' isMinimized=' + typeof w.isMinimized + ' isMaximized=' + typeof w.isMaximized + ' unmaximize=' + typeof w.unmaximize);
-				var attach = function(n){
-					var btn = document.querySelector('.titlebar-button.mod-maximize');
-					if (btn) {
-						btn.addEventListener('click', function(ev){ tlog('REALCLICK trusted=' + ev.isTrusted + ' detail=' + ev.detail); }, true);
-						btn.addEventListener('dblclick', function(ev){ tlog('REALDBLCLICK'); }, true);
-						tlog('listeners on ' + btn.className);
-						return;
-					}
-					if (n < 24) setTimeout(function(){ attach(n + 1); }, 500);
-					else tlog('listeners: no btn');
-				};
-				attach(0);
-				var seq = [
-					['A0 initial', null],
-					['A1 after maximize()', 'max'],
-					['A2 after unmaximize()', 'unmax'],
-					['A3 after restore()', 'restore'],
-					['A4 after unmaximize()', 'unmax'],
-					['B1 after maximize()', 'max'],
-					['B2 after btn.click()', 'btn'],
-					['B3 after btn.click()', 'btn'],
-					['B4 after btn.click()', 'btn']
-				];
-				var i = 0;
-				var step = function(){
-					if (i >= seq.length) return;
-					var act = seq[i][1];
-					try {
-						if (act === 'max') w.maximize();
-						else if (act === 'unmax') w.unmaximize();
-						else if (act === 'restore') w.restore();
-						else if (act === 'btn') {
-							var btn = document.querySelector('.titlebar-button.mod-maximize');
-							if (btn) btn.click();
-							else tlog('btn NOT FOUND at step ' + i);
-						}
-					} catch (e) { tlog('step ' + i + ' err: ' + e); }
-					setTimeout(function(){
-						i++;
-						if (i < seq.length) { try { tlog(seq[i][0] + ': ' + st()); } catch (e) { tlog(seq[i][0] + ' st err: ' + e); } step(); }
-						else { try { tlog('FINAL: ' + st()); } catch (e) {} }
-					}, 3000);
-				};
-				setTimeout(function(){
-					try { tlog('A0 initial: ' + st()); } catch (e) { tlog('A0 st err: ' + e); }
-					step();
-				}, 5000);
-			}
+			// WIN-TEST v3 sequence removed after verification (live13.log):
+			// maximize/unmaximize/restore/btn-click cycle all work; restore()
+			// desyncs isMaximized state on non-minimized windows (native quirk).
+			// Current window-control surface: system-decor native buttons
+			// (HMOS_NATIVE_DECOR), DOM buttons hidden via NATIVE_DECOR_CSS.
 		} catch (e) {
 			console.log('[HMOS-WIN-DBG] err: ' + e);
 		}
