@@ -87,6 +87,46 @@ if (remote && typeof remote.initialize === 'function') {
 	});
 }
 
+// ---------------------------------------------------------------------------
+// System window-decoration button overlap fix.
+//
+// Every BrowserWindow on this port surfaces as an OHOS free window whose ArkUI
+// ContainerModal decorations (EnhanceMinimizeBtn / EnhanceMaximizeBtn /
+// EnhanceCloseBtn) are drawn at the window's top-right corner. Obsidian also
+// draws its own DOM window controls there (app.js tH titlebar, created because
+// ipcRenderer.sendSync("frame") resolves to "hidden"), so the two button sets
+// overlap at the top-right corner.
+//
+// Obsidian's own titlebar is the intended control surface: its buttons call
+// BrowserWindow minimize/maximize/close through the port adapter
+// (AppWindowAdapter::Maximize/Minimize/Close), and its title strip is a
+// -webkit-app-region:drag surface implemented via
+// AppWindowAdapter::StartWindowMoving. So hide the system decor buttons with
+// Electron's setWindowButtonVisibility() (wired to AppWindowAdapter::
+// SetWindowButtonVisibility) for every window as soon as it is created.
+// ---------------------------------------------------------------------------
+{
+	let hideSystemDecorButtons = (win) => {
+		if (!win || typeof win.setWindowButtonVisibility !== 'function') return false;
+		try {
+			win.setWindowButtonVisibility(false);
+			return true;
+		} catch (e) {
+			console.warn('[HMOS-DECOR] setWindowButtonVisibility(false) failed:', e);
+			return false;
+		}
+	};
+
+	app.on('browser-window-created', (event, win) => {
+		hideSystemDecorButtons(win);
+		// The native window may not be fully wired when the event fires; retry
+		// once the window is ready so the decor buttons stay hidden.
+		try {
+			win.once('ready-to-show', () => hideSystemDecorButtons(win));
+		} catch (e) {}
+	});
+}
+
 protocol.registerSchemesAsPrivileged([
 	{scheme: 'app', privileges: {standard: true, secure: true, supportFetchAPI: true, stream: true, codeCache: true}}
 ]);
