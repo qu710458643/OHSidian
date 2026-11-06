@@ -87,7 +87,7 @@ export class ElectronAppAdapter extends BaseAdapter {
 
   @LogMethod
   getSystemLocale(): string {
-    return I18n.System.getSystemLocale();
+    return I18n.System.getSystemLocaleInstance().toString();
   }
 
   @LogMethod
@@ -131,6 +131,7 @@ export class ElectronAppAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   openApplicationInfoEntry(): void {
     let context = this.ctxAdapter.getActiveContext() as common.UIAbilityContext;
@@ -158,6 +159,7 @@ export class ElectronAppAdapter extends BaseAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   getAvailableArea(displayId: number, callback: (availArea: display.Rect) => void) {
     let displayClass: display.Display = display.getDisplayByIdSync(displayId);

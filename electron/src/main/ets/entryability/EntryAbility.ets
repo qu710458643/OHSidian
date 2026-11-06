@@ -50,7 +50,7 @@ export default class EntryAbility extends WebAbility {
   private async initAgc(): Promise<void> {
     try {
       const input = await this.context.resourceManager.getRawFileContent('agconnect-services.json');
-      const jsonString = new util.TextDecoder().decodeWithStream(input, undefined);
+      const jsonString = new util.TextDecoder().decodeToString(input);
       initialize(this.context, JSON.parse(jsonString));
       console.info('AGC initialized successfully');
     } catch (err) {
@@ -62,6 +62,7 @@ export default class EntryAbility extends WebAbility {
     super.onDestroy();
   }
 
+  /** @throws BusinessError */
   onWindowStageCreate(windowStage: window.WindowStage) {
     super.onWindowStageCreate(windowStage);
   }

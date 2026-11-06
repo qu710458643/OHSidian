@@ -90,12 +90,10 @@ function adjustSpeechVolumeOfSpeakParams(speakParams: SpeakingParams): SpeakingP
   let audioVolumeManager = audio.getAudioManager().getVolumeManager();
   let systemVolume: number | undefined;
   try {
-    let audioVolumeGroupManager: audio.AudioVolumeGroupManager =
-      audioVolumeManager.getVolumeGroupManagerSync(audio.DEFAULT_VOLUME_GROUP_ID);
-    systemVolume = audioVolumeGroupManager.getVolumeSync(audio.AudioVolumeType.MEDIA);
+    systemVolume = audioVolumeManager.getVolumeByStream(audio.StreamUsage.STREAM_USAGE_MUSIC);
   } catch (err) {
     let error = err as BusinessError;
-    LogUtil.error(TAG, `tts Failed to get audioVolumeGroupManager, error: ${error}`);
+    LogUtil.error(TAG, `tts Failed to get system volume, error: ${error}`);
   }
   if (typeof systemVolume === "number" && clonedSpeakParams.extraParams) {
     // Converts the system volume to a percentage, which is used to scale the speak input volume parameter.

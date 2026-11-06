@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { ShapeDetectionAdapter } from '../adapter/ShapeDetectionAdapter';
 
 function implShapeDetectionAdapter(): ShapeDetectionAdapter {
-  return Inject.getOrCreate(ShapeDetectionAdapter);
+  return getOrCreate(ShapeDetectionAdapter);
 }
 
 function TextDetect(buffer:ArrayBuffer, width:number, height:number, callback:Function): void {

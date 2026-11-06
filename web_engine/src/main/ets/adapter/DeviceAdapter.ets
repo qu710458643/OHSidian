@@ -135,6 +135,7 @@ export class DeviceAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   hasRight(deviceName: string): boolean {
     return usb.hasRight(deviceName);

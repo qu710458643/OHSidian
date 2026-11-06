@@ -63,6 +63,7 @@ export class SubWindowAdapter extends BaseAdapter {
     this.systemFloatingWindowManager = systemFloatingWindowManager;
   }
 
+  /** @throws BusinessError */
   @LogMethod
   createSubWindow(param: NewWindowParam,
     callback: (ready: boolean, id: string) => void) {
@@ -111,6 +112,7 @@ export class SubWindowAdapter extends BaseAdapter {
     return mainWindow;
   }
 
+  /** @throws BusinessError */
   private adjustBounds(parentId: string, bounds: WindowBound): WindowBound {
     let out_bounds = bounds;
     let mainWindow = this.getParentWindow(parentId);
@@ -138,6 +140,7 @@ export class SubWindowAdapter extends BaseAdapter {
     return undefined;
   }
 
+  /** @throws BusinessError */
   private findReuseableSubWindow(parentId: string, width: number, height: number)
     : ISubWindowInfo | undefined {
     let reusableSubWindowList = this.reusableSubWindow.get(parentId);
@@ -241,10 +244,12 @@ export class SubWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   private async resizeSubWindow(windowClass: window.Window, width: number, height: number) {
     return await windowClass.resize(width, height);
   }
 
+  /** @throws BusinessError */
   private moveSubWindow(windowClass: window.Window, x: number, y: number, parentId: string) {
     if (deviceInfo.sdkApiVersion >= 15) {
       let displayId : number | undefined;
@@ -277,6 +282,7 @@ export class SubWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   cancelSubWindow(id: string) {
     for (let i = 0; i < this.subWindowList.length; i++) {

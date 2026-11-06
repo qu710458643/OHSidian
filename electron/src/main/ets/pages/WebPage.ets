@@ -1,11 +1,10 @@
 import { webview } from '@kit.ArkWeb';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 // 华为账号用户认证协议展示页
 @Entry
 @Component
-export struct WebPage {
+struct WebPage {
   @State webUrl?: string = '';
   @State progress: number = 0;
   logTag: string = 'WebPage';
@@ -33,7 +32,7 @@ export struct WebPage {
         .width(40)
         .height(40)
         .onClick(() => {
-          router.back();
+          this.getUIContext().getRouter().back();
         })
       }
       .height(56)
@@ -77,11 +76,12 @@ export struct WebPage {
 
   aboutToAppear(): void {
     hilog.info(0x0000, 'testTag', 'aboutToAppear');
-    const params = router.getParams() as Record<string, string>;
+    const params = this.getUIContext().getRouter().getParams() as Record<string, string>;
     this.webUrl = params.url ?? '';
     hilog.info(0x0000, 'testTag', `webUrl: ${this.webUrl}`);
   }
 
+  /** @throws BusinessError */
   aboutToDisappear(): void {
     hilog.info(0x0000, 'testTag', 'aboutToDisappear');
     if (this.webUrl) {

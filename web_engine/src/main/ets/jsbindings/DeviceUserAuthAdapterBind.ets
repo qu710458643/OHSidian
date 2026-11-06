@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { DeviceUserAuthAdapter } from '../adapter/DeviceUserAuthAdapter';
 
 function implDeviceUserAuthAdapter(): DeviceUserAuthAdapter {
-  return Inject.getOrCreate(DeviceUserAuthAdapter);
+  return getOrCreate(DeviceUserAuthAdapter);
 }
 
 function startUserAuth(prompt_string: string, callback: Function, enableBiom: boolean, biomType: number) {

@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from "../common/InjectModule";
+import { getOrCreate } from 'web-di';
 import lazy { StatusBarManagerAdapter } from '../adapter/StatusBarManager';
 
 function implStatusBarManagerAdapter(): StatusBarManagerAdapter {
-  return Inject.getOrCreate(StatusBarManagerAdapter);
+  return getOrCreate(StatusBarManagerAdapter);
 }
 
 function setImage(whiteWidth: number,

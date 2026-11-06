@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { AccessibilityAdapter } from '../adapter/AccessibilityAdapter';
 
 
 function implAccessibilityAdapter(): AccessibilityAdapter {
-  return Inject.getOrCreate(AccessibilityAdapter);
+  return getOrCreate(AccessibilityAdapter);
 }
 
 function speech(text: string, id: string) {

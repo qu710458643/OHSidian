@@ -28,14 +28,15 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { SubWindowAdapter } from '../adapter/SubWindowAdapter';
 import type { NewWindowParam, WindowBound } from '../interface/CommonInterface';
 
 function implSubWindowAdapter(): SubWindowAdapter {
-  return Inject.getOrCreate(SubWindowAdapter);
+  return getOrCreate(SubWindowAdapter);
 }
 
+/** @throws BusinessError */
 function createSubWindow(
   param: NewWindowParam,
   callback: (ready: boolean, id: string) => void) {
@@ -50,6 +51,7 @@ function hideSubWindow(id: string) {
   implSubWindowAdapter().hideSubWindow(id);
 }
 
+/** @throws BusinessError */
 function cancelSubWindow(id: string) {
   implSubWindowAdapter().cancelSubWindow(id);
 }

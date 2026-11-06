@@ -37,6 +37,7 @@ export default class StatusBarEntryAbility extends StatusBarViewExtensionAbility
     hilog.info(0x0000, TAG, '%{public}s', 'Ability onCreate');
   }
 
+  /** @throws BusinessError */
   onSessionCreate(want: Want, session: UIExtensionContentSession) {
     hilog.info(0x0000, TAG, '%{public}s', 'Ability onSessionCreate');
     session.loadContent('pages/StatusBarPage');

@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from "../common/InjectModule";
+import { getOrCreate } from 'web-di';
 import lazy { DialogAdapter } from '../adapter/DialogAdapter';
 
 function implDialogAdapter(): DialogAdapter {
-  return Inject.getOrCreate(DialogAdapter);
+  return getOrCreate(DialogAdapter);
 }
 
 function showMessageBox(settings: string, buffer: ArrayBuffer, width: number, height: number,  callback: (button_id: number, checkbox_checked: boolean) => void): void {
@@ -43,10 +43,12 @@ function showErrorBox(title: string, content: string, callback: (result: boolean
   return implDialogAdapter().showErrorBox(title, content, callback);
 }
 
+/** @throws BusinessError */
 function showOpenDialog(settings: string, callback: (filePaths: string[], canceled: boolean) => void): void {
   return implDialogAdapter().showOpenDialog(settings, callback);
 }
 
+/** @throws BusinessError */
 function showSaveDialog(settings: string, callback: (filePath: string, canceled: boolean) => void): void {
   return implDialogAdapter().showSaveDialog(settings, callback);
 }

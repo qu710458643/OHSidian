@@ -37,6 +37,7 @@ import { AbilityManager } from '../common/AbilityManager';
 import { BaseAdapter } from '../common/BaseAdapter';
 import { BusinessError } from '@ohos.base';
 import { image } from '@kit.ImageKit';
+import { window } from '@kit.ArkUI';
 import { inject, injectable } from 'inversify';
 import { ContextAdapter } from './ContextAdapter';
 import { PermissionManagerAdapter } from './PermissionManagerAdapter';
@@ -122,25 +123,35 @@ export class DialogAdapter extends BaseAdapter {
   @LogMethod
   showErrorBox(title: string, content: string, callback: (result: boolean) => void) {
     let isClicked = false;
-    AlertDialog.show({
-      title: title,
-      message: content,
-      autoCancel: false,
-      cancel: () => {},
-      primaryButton: {
-        value: $r('app.string.button_ok'),
-        style: DialogButtonStyle.HIGHLIGHT,
-        action: () => {
-          if (isClicked) {
-            return;
-          }
-          isClicked = true;
-          callback(true);
-        },
-      }
+    const ctx = this.ctxAdapter.getActiveContext();
+    if (ctx === undefined) {
+      LogUtil.error(TAG, 'showErrorBox: no active window context');
+      return;
+    }
+    window.getLastWindow(ctx).then((activeWindow) => {
+      activeWindow.getUIContext().showAlertDialog({
+        title: title,
+        message: content,
+        autoCancel: false,
+        cancel: () => {},
+        primaryButton: {
+          value: $r('app.string.button_ok'),
+          style: DialogButtonStyle.HIGHLIGHT,
+          action: () => {
+            if (isClicked) {
+              return;
+            }
+            isClicked = true;
+            callback(true);
+          },
+        }
+      });
+    }).catch((err: BusinessError) => {
+      LogUtil.error(TAG, 'showErrorBox failed: ' + JSON.stringify(err));
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   showOpenDialog(settings: string, callback: (filePaths: string[], canceled: boolean) => void) {
     LogUtil.info(TAG, 'ShowOpenDialog ' + settings);
@@ -184,6 +195,7 @@ export class DialogAdapter extends BaseAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   showSaveDialog(settings: string, callback: (filePath: string, canceled: boolean) => void) {
     LogUtil.info(TAG, 'ShowSaveDialog ' + settings);

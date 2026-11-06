@@ -28,7 +28,7 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import type {
   CharacteristicInfo,
   DescriptorInfo,
@@ -39,7 +39,7 @@ import type { AdvertisingParam } from '../interface/CommonInterface';
 import lazy { BluetoothLowEnergyAdapter } from '../adapter/BluetoothLowEnergyAdapter';
 
 function implBluetoothAdapter(): BluetoothLowEnergyAdapter {
-  return Inject.getOrCreate(BluetoothLowEnergyAdapter);
+  return getOrCreate(BluetoothLowEnergyAdapter);
 }
 
 function StartBluetoothDiscovery(): void {
@@ -58,10 +58,12 @@ function StopDiscoveryMonitor(): void {
   return implBluetoothAdapter().stopDiscoveryMonitor();
 }
 
+/** @throws BusinessError */
 function CreateGattClientDevice(deviceId: string, onGattChangeCallback: (state: number) => void): void {
   return implBluetoothAdapter().createGattClientDevice(deviceId, onGattChangeCallback);
 }
 
+/** @throws BusinessError */
 function DisConnectGatt(deviceId: string): void {
   return implBluetoothAdapter().disconnectGatt(deviceId);
 }
@@ -82,51 +84,61 @@ function OffAdvertisingStateChange(): void {
   return implBluetoothAdapter().offAdvertisingStateChange();
 }
 
+/** @throws BusinessError */
 function StartGattDiscovery(deviceId: string, callback: (ServiceInfos: Array<ServiceInfo>) => void): void {
   return implBluetoothAdapter().startGattDiscovery(deviceId, callback);
 }
 
+/** @throws BusinessError */
 function CreateCharacteristic(serviceId: string, deviceId: string,
   callback: (characteristicInfos: Array<CharacteristicInfo>) => void): void {
   return implBluetoothAdapter().createCharacteristic(serviceId, deviceId, callback);
 }
 
+/** @throws BusinessError */
 function CreateDescriptor(characteristicId: string, deviceId: string,
   callback: (descriptorInfos: Array<DescriptorInfo>) => void): void {
   return implBluetoothAdapter().createDescriptor(characteristicId, deviceId, callback);
 }
 
+/** @throws BusinessError */
 function ReadCharacteristic(id: string, deviceId: string,
   callback: (error_code: Number, value: ArrayBuffer) => void): void {
   return implBluetoothAdapter().readCharacteristic(id, deviceId, callback);
 }
 
+/** @throws BusinessError */
 function DeprecatedWriteCharacteristic(id: string, deviceId: string, value: ArrayBuffer,
   callback: (error_code: number) => void): void {
   return implBluetoothAdapter().deprecatedWriteCharacteristic(id, deviceId, value, callback);
 }
 
+/** @throws BusinessError */
 function WriteCharacteristic(id: string, deviceId: string, writeType: number, value: ArrayBuffer,
   callback: (error_code: number) => void): void {
   return implBluetoothAdapter().writeCharacteristic(id, deviceId, writeType, value, callback);
 }
 
+/** @throws BusinessError */
 function ReadDescriptor(id: string, deviceId: string,
   callback: (error_code: Number, value: ArrayBuffer) => void): void {
   return implBluetoothAdapter().readDescriptor(id, deviceId, callback);
 }
 
+/** @throws BusinessError */
 function WriteDescriptor(id: string, deviceId: string, value: ArrayBuffer,
   callback: (error_code: number) => void): void {
   return implBluetoothAdapter().writeDescriptor(id, deviceId, value, callback);
 }
 
 
+/** @throws BusinessError */
 function SubscribeToNotifications(id: string, deviceId: string,
   callback: (value: ArrayBuffer, error_code: number) => void): void {
   return implBluetoothAdapter().subscribeToNotifications(id, deviceId, callback);
 }
 
+/** @throws BusinessError */
 function UnsubscribeFromNotifications(id: string, deviceId: string, callback: (error_code: number) => void): void {
   return implBluetoothAdapter().unsubscribeFromNotifications(id, deviceId, callback);
 }

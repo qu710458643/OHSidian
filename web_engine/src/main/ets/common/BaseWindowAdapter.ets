@@ -49,6 +49,7 @@ export class BaseWindowAdapter extends BaseAdapter implements WebProxy {
     this.ctxAdapter = ctxAdapter;
   }
 
+  /** @throws BusinessError */
   initialize(xcomponentId: string, windowClass: window.Window) {
     this.xcomponentId = xcomponentId;
     this.windowClass = windowClass;

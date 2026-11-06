@@ -47,6 +47,7 @@ export default class BrowserAbility extends WebAbility {
     super.onDestroy();
   }
 
+  /** @throws BusinessError */
   onWindowStageCreate(windowStage: window.WindowStage) {
     super.onWindowStageCreate(windowStage);
   }

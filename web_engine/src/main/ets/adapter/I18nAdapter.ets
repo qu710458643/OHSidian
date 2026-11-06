@@ -30,7 +30,7 @@
 import { injectable } from 'inversify';
 import Base from '@ohos.base';
 import CommonEventManager from '@ohos.commonEventManager';
-import Intl from '@ohos.intl';
+import i18n from '@ohos.i18n';
 import system from '@ohos.systemDateTime';
 
 import { BaseAdapter } from '../common/BaseAdapter';
@@ -47,12 +47,12 @@ export class I18nAdapter extends BaseAdapter {
 
   @LogMethod
   getLocaleLang(): string {
-    return (new Intl.Locale()).language;
+    return i18n.System.getSystemLocaleInstance().language;
   }
 
   @LogMethod
   getLocaleRegion(): string {
-    return (new Intl.Locale()).region;
+    return i18n.System.getSystemLocaleInstance().region ?? '';
   }
 
   @LogMethod

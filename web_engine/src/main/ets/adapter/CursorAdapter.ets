@@ -62,6 +62,7 @@ export class CursorAdapter extends BaseAdapter {
     return window;
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setCursor(id: number, type: number) {
     let window = this.getWindow(id);

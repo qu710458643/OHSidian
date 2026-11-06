@@ -31,7 +31,7 @@ import { NativeContext, WindowBound } from '../interface/CommonInterface';
 import lazy { DragDropAdapter } from '../adapter/DragDropAdapter';
 import LogUtil from '../utils/LogUtil';
 import { ConfigData, ContextType, PanAction } from '../common/Constants';
-import Inject from '../common/InjectModule';
+import { get } from 'web-di';
 import JsBindingUtils from '../utils/JsBindingUtils';
 import { MultiInputAdapter } from '../adapter/MultiInputAdapter';
 import { typeNode as TypedNode, NodeController, FrameNode } from '@ohos.arkui.node';
@@ -70,6 +70,7 @@ class WindowNodeController extends NodeController {
     this.config = config;
   }
 
+  /** @throws BusinessError */
   makeNode(uiContext: UIContext): FrameNode | null {
     let node = new FrameNode(uiContext);
     this.xComponent = TypedNode.createNode(uiContext, "XComponent", {
@@ -92,13 +93,14 @@ class WindowNodeController extends NodeController {
       .onLoad(() => {
         LogUtil.info(TAG, 'onLoad xComponentId:' + this.config.xComponentId);
         this.setDefaultBounds();
-        let vec_args = this.buildArgs();
+        let vec_args = this.buildArgs(uiContext);
         this.config.nativeContext.runBrowser(vec_args);
       })
     node.appendChild(this.xComponent);
     return node;
   }
 
+  /** @throws BusinessError */
   private setDefaultBounds() {
     if (this.config.xComponentId !== ConfigData.DEFAULT_WINDOW_ID) {
       return;
@@ -124,14 +126,14 @@ class WindowNodeController extends NodeController {
     }
   }
 
-  private buildArgs(): string[] {
+  private buildArgs(uiContext: UIContext): string[] {
     const override_ua = '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
       'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36';
     let default_uri = '';
     if (this.config.uri.length !== 0) {
       default_uri = this.config.uri;
     }
-    let resDir = '--bundle-installation-dir=' + getContext().resourceDir;
+    let resDir = '--bundle-installation-dir=' + (uiContext.getHostContext()?.resourceDir ?? '');
     let vec_args = [override_ua, resDir, default_uri];
     return vec_args;
   }
@@ -144,10 +146,10 @@ export struct WebWindowNode {
   @LocalStorageLink('window') window: window.Window | undefined = undefined;
   private XCOMPONENT_NAME: string = 'xcomponent';
   private MODULE_NAME: string = this.xComponentId + ':' + this.XCOMPONENT_NAME;
-  private dragDropAdapter: DragDropAdapter = Inject.get(DragDropAdapter);
+  private dragDropAdapter: DragDropAdapter = get(DragDropAdapter);
   private nativeContext: NativeContext = JsBindingUtils.getNativeContext(ContextType.kMainProcess);
-  private multiInputAdapter: MultiInputAdapter = Inject.get(MultiInputAdapter);
-  private dragParamManager = Inject.get(DragParamManager);
+  private multiInputAdapter: MultiInputAdapter = get(MultiInputAdapter);
+  private dragParamManager = get(DragParamManager);
 
   private windowNodeController: WindowNodeController =
     new WindowNodeController({
@@ -206,8 +208,8 @@ export struct WebWindowNode {
       .onDragMove((event?: DragEvent) => {
         let windowX = event?.getWindowX();
         let windowY = event?.getWindowY();
-        windowX = vp2px(windowX);
-        windowY = vp2px(windowY);
+        windowX = this.getUIContext().vp2px(windowX);
+        windowY = this.getUIContext().vp2px(windowY);
         this.dragDropAdapter.dragMove(this.xComponentId, windowX, windowY);
       })
       .onDragLeave(() => {

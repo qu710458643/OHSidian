@@ -54,6 +54,7 @@ export class AppLifecycleAdapter extends BaseAdapter {
     this.start();
   }
 
+  /** @throws BusinessError */
   @LogMethod
   onWebDestroy() {
     this.webStatus = WebStatus.kDestroy;
@@ -66,6 +67,7 @@ export class AppLifecycleAdapter extends BaseAdapter {
 
   start() {}
 
+  /** @throws BusinessError */
   destroy() {
     let proxy_list = this.abilityManager.getProxyList();
     for (let i = 0; i < proxy_list.length; i++) {

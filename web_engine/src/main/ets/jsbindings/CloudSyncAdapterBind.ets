@@ -3,11 +3,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from "../common/InjectModule";
+import { getOrCreate } from 'web-di';
 import lazy { CloudSyncAdapter } from '../adapter/CloudSyncAdapter';
 
 function impl(): CloudSyncAdapter {
-  return Inject.getOrCreate(CloudSyncAdapter);
+  return getOrCreate(CloudSyncAdapter);
 }
 
 function initCloudSync(context: Context, onCompleted: (ret: boolean) => void): void {

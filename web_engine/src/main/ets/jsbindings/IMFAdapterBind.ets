@@ -28,7 +28,7 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { IMFAdapter } from '../adapter/IMFAdapter';
 import type {
   IMFAdapterCursorInfo,
@@ -36,7 +36,7 @@ import type {
   IMFAdapterTextConfig } from '../interface/CommonInterface';
 
 function implIMFAdapter(): IMFAdapter {
-  return Inject.getOrCreate(IMFAdapter);
+  return getOrCreate(IMFAdapter);
 }
 
 function attachTextInput(textConfigIMF: IMFAdapterTextConfig, requestKeyboardReason: number,

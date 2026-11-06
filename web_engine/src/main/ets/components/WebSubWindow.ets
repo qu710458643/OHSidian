@@ -30,7 +30,7 @@
 import { IParams } from '../interface/CommonInterface';
 import { PanAction } from '../common/Constants';
 import { DragDropAdapter } from '../adapter/DragDropAdapter';
-import Inject from '../common/InjectModule';
+import { get } from 'web-di';
 import LogUtil from '../utils/LogUtil';
 import { MultiInputAdapter } from '../adapter/MultiInputAdapter';
 import { DragParamManager } from '../common/DragParamManager';
@@ -50,9 +50,9 @@ export struct WebSubWindow {
   private callback: (ready: boolean, id: string) => void = this.params.callback;
   private XCOMPONENT_NAME: string = 'subXcomponent';
   private MODULE_NAME: string = this.xComponentId + ':' + this.XCOMPONENT_NAME;
-  private dragDropAdapter: DragDropAdapter = Inject.get(DragDropAdapter);
-  private multiInputAdapter: MultiInputAdapter = Inject.get(MultiInputAdapter);
-  private dragParamManager = Inject.get(DragParamManager);
+  private dragDropAdapter: DragDropAdapter = get(DragDropAdapter);
+  private multiInputAdapter: MultiInputAdapter = get(MultiInputAdapter);
+  private dragParamManager = get(DragParamManager);
 
   aboutToAppear(): void {
     this.dragParamManager.addDragContextData({
@@ -96,8 +96,8 @@ export struct WebSubWindow {
       .onDragMove((event?: DragEvent) => {
         let windowX = event?.getWindowX();
         let windowY = event?.getWindowY();
-        windowX = vp2px(windowX);
-        windowY = vp2px(windowY);
+        windowX = this.getUIContext().vp2px(windowX);
+        windowY = this.getUIContext().vp2px(windowY);
         this.dragDropAdapter.dragMove(this.xComponentId, windowX, windowY);
       })
       .onDragLeave(() => {

@@ -117,6 +117,7 @@ export class DeviceUserAuthAdapter extends BaseAdapter {
       }
       let userAuthInstance = userAuth.getUserAuthInstance(authParam, widgetParam);
       userAuthInstance.on('result', {
+        /** @throws BusinessError */
         onResult(result) {
           userAuthInstance.off('result');
           if (result.result !== userAuth.UserAuthResultCode.SUCCESS) {

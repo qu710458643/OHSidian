@@ -33,7 +33,7 @@ import Want from '@ohos.app.ability.Want';
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import { NativeThemeAdapter } from '../adapter/NativeThemeAdapter';
 import { Configuration } from '@ohos.app.ability.Configuration';
-import Inject from '../common/InjectModule';
+import { get } from 'web-di';
 import { WindowBound } from '../interface/CommonInterface';
 import { PermissionManagerAdapter } from '../adapter/PermissionManagerAdapter';
 import { UIExtensionContentSession } from '@kit.AbilityKit';
@@ -56,11 +56,12 @@ export class WebEmbeddedAbility extends WebBaseExtensionAbility {
   }
 
   onCreate(launchParam: AbilityConstant.LaunchParam) {
-    this.abilityManager = Inject.get(AbilityManager);
-    this.nativeThemeAdapter = Inject.get(NativeThemeAdapter);
-    Inject.get(PermissionManagerAdapter).initPermissions();
+    this.abilityManager = get(AbilityManager);
+    this.nativeThemeAdapter = get(NativeThemeAdapter);
+    get(PermissionManagerAdapter).initPermissions();
   }
 
+  /** @throws BusinessError */
   onSessionCreate(want: Want, session: UIExtensionContentSession) {
     super.onSessionCreate(want, session);
 

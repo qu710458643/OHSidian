@@ -28,13 +28,14 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { FontAdapter } from '../adapter/FontAdapter';
 
 function implFontAdapter(): FontAdapter {
-  return Inject.getOrCreate(FontAdapter);
+  return getOrCreate(FontAdapter);
 }
 
+/** @throws BusinessError */
 function getSystemFontList(): Array<string> {
   return implFontAdapter().getSystemFontList();
 }
@@ -43,6 +44,7 @@ function getConfigFontList(): Array<string> {
   return implFontAdapter().getConfigFontList();
 }
 
+/** @throws BusinessError */
 function getFontInfo(name: string): string {
   return implFontAdapter().getFontInfo(name);
 }

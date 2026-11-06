@@ -74,6 +74,7 @@ export class NativeThemeAdapter extends BaseAdapter {
     this.nativeContext.SetThemeSource(themeSource);
   }
 
+  /** @throws BusinessError */
   setAppColorMode(colorMode: ConfigurationConstant.ColorMode){
     this.ctxAdapter.getContext().getApplicationContext().setColorMode(colorMode);
   }

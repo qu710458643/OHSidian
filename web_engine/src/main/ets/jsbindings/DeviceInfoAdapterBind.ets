@@ -28,11 +28,11 @@
  */
 
 import DeviceInfoAdapter from '../adapter/DeviceInfoAdapter';
-import Inject from '../common/InjectModule';
+import { get } from 'web-di';
 import JsBindingUtils from '../utils/JsBindingUtils';
 
 function implDeviceInfoAdapter(): DeviceInfoAdapter {
-  return Inject.get(DeviceInfoAdapter);
+  return get(DeviceInfoAdapter);
 }
 
 function get(prop:string): string {

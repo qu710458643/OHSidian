@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { MediaAdapter } from '../adapter/MediaAdapter';
 
 function implMediaAdapter(): MediaAdapter {
-  return Inject.getOrCreate(MediaAdapter);
+  return getOrCreate(MediaAdapter);
 }
 
 function getPreviewSurfaceId(callback?: Function) {
@@ -43,6 +43,7 @@ function getImageReceiver() {
   implMediaAdapter().getImageReceiver();
 }
 
+/** @throws BusinessError */
 function getCameraOrientation(): number {
   return implMediaAdapter().getCameraOrientation();
 }

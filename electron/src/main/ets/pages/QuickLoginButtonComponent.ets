@@ -1,11 +1,9 @@
 import { loginComponentManager, LoginWithHuaweiIDButton } from '@kit.AccountKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { promptAction, router } from '@kit.ArkUI';
 import { connection } from '@kit.NetworkKit';
 import { authentication } from '@kit.AccountKit';
 import { util } from '@kit.ArkTS';
-import { WebPage } from './WebPage'
 import { ILoginInfo } from 'web_engine';
 
 
@@ -150,7 +148,7 @@ export struct QuickLoginButtonComponent {
   // Toast提示
   showToast(resource: string) {
     try {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: resource,
         duration: 2000
       });
@@ -175,7 +173,7 @@ export struct QuickLoginButtonComponent {
       const code = error.code as string;
       hilog.error(0x0000, 'testTag', `Failed to hasDefaultNetSync, errCode is ${code}, errMessage is ${message}`);
     }
-    router.pushUrl({
+    this.getUIContext().getRouter().pushUrl({
       // 需在module.json5配置“ohos.permission.INTERNET”网络权限
       url: 'pages/WebPage',
       params: {
@@ -196,7 +194,7 @@ export struct QuickLoginButtonComponent {
       hilog.error(this.domainId, this.logTag,
         `Failed to login with LoginWithHuaweiIDButton. errCode is ${error.code}, errMessage is ${error.message}`);
       if (error.code === ErrorCode.ERROR_CODE_NETWORK_ERROR) {
-        AlertDialog.show(
+        this.getUIContext().showAlertDialog(
           {
             message: "网络未连接，请检查网络设置。",
             offset: { dx: 0, dy: -12 },
@@ -254,7 +252,7 @@ export struct QuickLoginButtonComponent {
     } catch (err) {
       hilog.error(this.domainId, this.logTag,
         `Failed to login with LoginWithHuaweiIDButton, errCode: ${err.code}, errMessage: ${err.message}`);
-      AlertDialog.show(
+      this.getUIContext().showAlertDialog(
         {
           message: '服务或网络异常，请稍后重试',
           offset: { dx: 0, dy: -12 },

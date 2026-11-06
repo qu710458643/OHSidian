@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { DragDropAdapter } from '../adapter/DragDropAdapter';
 import type { OhosDragParamToJs } from '../interface/CommonInterface';
 
 function implDragDropAdapter(): DragDropAdapter {
-  return Inject.getOrCreate(DragDropAdapter);
+  return getOrCreate(DragDropAdapter);
 }
 
 function startDrag(dragParams: OhosDragParamToJs) {

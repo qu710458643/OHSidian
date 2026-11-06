@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { CertManagerAdapter } from '../adapter/CertManagerAdapter';
 
 function implCertManagerAdapter(): CertManagerAdapter {
-  return Inject.getOrCreate(CertManagerAdapter);
+  return getOrCreate(CertManagerAdapter);
 }
 
 function installPersonalCert(certData: ArrayBuffer, certPass: string, alias: string, callback: (ready: number) => void) {
@@ -51,10 +51,12 @@ function signByCertUri(uri: string, inputData: ArrayBuffer, callback: Function):
   implCertManagerAdapter().signByCertUri(uri, inputData, callback);
 }
 
+/** @throws BusinessError */
 function getCertCrl(pathDirPrefix:string, getUserIdFlag: boolean, callback: Function) {
   implCertManagerAdapter().getCertCrl(pathDirPrefix, getUserIdFlag, callback);
 }
 
+/** @throws BusinessError */
 function returnUserId(callback: Function): void {
   implCertManagerAdapter().returnUserId(callback);
 }

@@ -57,6 +57,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     this.systemFloatingWindowManager = systemFloatingWindowManager;
   }
 
+  /** @throws BusinessError */
   @LogMethod
   createWindow(param: NewWindowParam) {
     let activeContext = this.ctxAdapter.getActiveContext() as common.UIAbilityContext;
@@ -78,6 +79,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
       ctx: activeContext,
       decorEnabled: true
     };
+    // @SuppressWarnings permission
     window.createWindow(config, (err: BusinessError, data) => {
       if (err.code) {
         LogUtil.error(TAG, 'Failed to create window. Cause: ' + JSON.stringify(err));
@@ -160,6 +162,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   closeWindow(id: number) {
     let mainWindowId = this.systemFloatingWindowManager.getMainWindowId(id);
@@ -169,6 +172,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   showWindow(id: number) {
     let windowClass = this.abilityManager.getProxy(id)?.getWindow();
@@ -180,6 +184,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+    /** @throws BusinessError */
     @LogMethod
   hideWindow(id: number) {
     let windowClass = this.abilityManager.getProxy(id)?.getWindow();
@@ -191,6 +196,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setBounds(id: number,
             bounds: WindowBound,
@@ -230,6 +236,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setWindowLimits(minWidth: number,
                   minHeight: number,
@@ -266,6 +273,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+  /** @throws BusinessError */
   private adjustBounds(bounds: WindowBound): WindowBound {
     let out_bounds = bounds;
     let mainWindow = this.ctxAdapter.getActiveProxy().getWindow();
@@ -282,6 +290,7 @@ export class SystemFloatingWindowAdapter extends BaseWindowAdapter {
     return out_bounds;
   }
 
+  /** @throws BusinessError */
   private cacheWindow(parentId: string, windowId: string, windowClass: window.Window) {
     let mainWindowId = this.abilityManager.getProxy(parentId)?.getWindowId();
     if (mainWindowId) {

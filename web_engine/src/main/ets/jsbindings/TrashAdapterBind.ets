@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { TrashAdapter } from '../adapter/TrashAdapter';
 
 function implTrashAdapter(): TrashAdapter {
-  return Inject.getOrCreate(TrashAdapter);
+  return getOrCreate(TrashAdapter);
 }
 
 function trashItem(pathOrUri: string, callback?: (success: boolean) => void): Promise<boolean> {

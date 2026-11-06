@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { OcrAdapter } from '../adapter/OcrAdapter';
 import lazy { OcrAdapterImage } from '../interface/CommonInterface';
 
 function implOcrAdapter(): OcrAdapter {
-  return Inject.getOrCreate(OcrAdapter);
+  return getOrCreate(OcrAdapter);
 }
 
 async function ocrFunction(callback: Function, requestImage: OcrAdapterImage) {

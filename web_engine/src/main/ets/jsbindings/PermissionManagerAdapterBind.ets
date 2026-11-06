@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { PermissionManagerAdapter } from '../adapter/PermissionManagerAdapter';
 
 function implPermissionManagerAdapter(): PermissionManagerAdapter {
-  return Inject.getOrCreate(PermissionManagerAdapter);
+  return getOrCreate(PermissionManagerAdapter);
 }
 
 function requestPermissions(permissionType: string, callback: (permissionGranted: number) => void) {
@@ -51,6 +51,7 @@ function activateFileAccessPersist(uris: string[], callback: (code: number) => v
   implPermissionManagerAdapter().activateFileAccessPersist(uris, callback);
 }
 
+/** @throws BusinessError */
 async function openPermissionConfirm(type: string, callback: (index: number) => void) {
   await implPermissionManagerAdapter().openPermissionConfirm(type, callback);
 }

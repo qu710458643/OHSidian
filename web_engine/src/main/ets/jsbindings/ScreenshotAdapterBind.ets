@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import { image } from '@kit.ImageKit';
 import lazy { ScreenshotAdapter } from '../adapter/ScreenshotAdapter';
 
 function implScreenshotAdapter(): ScreenshotAdapter {
-  return Inject.getOrCreate(ScreenshotAdapter);
+  return getOrCreate(ScreenshotAdapter);
 }
 
 function startCapture(callback: (imageInfo: image.ImageInfo | null,

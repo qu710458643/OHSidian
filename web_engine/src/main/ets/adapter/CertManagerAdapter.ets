@@ -66,6 +66,7 @@ export class CertManagerAdapter extends BaseAdapter {
     return `${this.ctxAdapter.getContext().filesDir}/uris`;
   }
 
+  /** @throws BusinessError */
   readFile(filePath: string) : string {
     let res = fs.accessSync(filePath);
     if (!res) {
@@ -174,18 +175,21 @@ export class CertManagerAdapter extends BaseAdapter {
     })
   }
 
+  /** @throws BusinessError */
   async getUserId(): Promise<number> {
     let accountManager = account_osAccount.getAccountManager();
     let localId: number = await accountManager.getOsAccountLocalId();
     return await Promise.resolve(localId);
   }
 
+  /** @throws BusinessError */
   @LogMethod
   async returnUserId(callback: Function) {
     let userid: number = await this.getUserId();
     callback(userid);
   }
 
+  /** @throws BusinessError */
   @LogMethod
   async getCertCrl(pathDirPrefix:string, getUserIdFlag: boolean, callback: Function) {
     let option = new ListFileOption();

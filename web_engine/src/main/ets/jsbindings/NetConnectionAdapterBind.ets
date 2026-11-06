@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { NetConnectionAdapter } from '../adapter/NetConnectionAdapter';
 
 function implNetConnectionAdapter(): NetConnectionAdapter {
-  return Inject.getOrCreate(NetConnectionAdapter);
+  return getOrCreate(NetConnectionAdapter);
 }
 
 function netAvailable(callback: Function): void {

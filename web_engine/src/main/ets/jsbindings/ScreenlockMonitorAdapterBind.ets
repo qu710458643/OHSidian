@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { ScreenlockMonitorAdapter } from '../adapter/ScreenlockMonitorAdapter';
 
 function implScreenlockMonitorAdapter(): ScreenlockMonitorAdapter {
-  return Inject.getOrCreate(ScreenlockMonitorAdapter);
+  return getOrCreate(ScreenlockMonitorAdapter);
 }
 
 function startListeningForScreenlock(callback: Function): void {

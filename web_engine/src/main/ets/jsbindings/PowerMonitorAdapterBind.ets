@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { PowerMonitorAdapter } from '../adapter/PowerMonitorAdapter';
 
 function implPowerMonitorAdapter(): PowerMonitorAdapter {
-  return Inject.getOrCreate(PowerMonitorAdapter);
+  return getOrCreate(PowerMonitorAdapter);
 }
 
 function isOnBatteryPower(): boolean {

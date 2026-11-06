@@ -31,8 +31,7 @@ import { ILoginInfo, ILogin } from 'web_engine';
 import { QuickLoginButtonComponent } from './QuickLoginButtonComponent'
 
 
-let storage = LocalStorage.getShared();
-@Entry(storage)
+@Entry({ useSharedStorage: true })
 @Component
 struct Index {
   @LocalStorageLink('login') login: ILogin = {

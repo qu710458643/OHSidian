@@ -27,12 +27,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import font from '@ohos.font';
+import { window } from '@kit.ArkUI';
 import LogUtil from '../utils/LogUtil';
 
 import { BaseAdapter } from '../common/BaseAdapter';
 import LogMethod from '../common/LogDecorator';
+import { ContextAdapter } from './ContextAdapter';
 
 const TAG: string = 'FontAdapter';
 
@@ -40,11 +42,27 @@ const TAG: string = 'FontAdapter';
 export class FontAdapter extends BaseAdapter {
   private fontList: Array<string> = new Array<string>();
   private configFontList: Array<string> = new Array<string>();
-  private fontInfo: font.FontInfo = font.getFontByName('');
+  private fontInfo: font.FontInfo | undefined = undefined;
+  private ctxAdapter: ContextAdapter;
 
+  constructor(@inject(ContextAdapter) ctxAdapter: ContextAdapter) {
+    super();
+    this.ctxAdapter = ctxAdapter;
+  }
+
+  private getActiveWindow(): window.Window | undefined {
+    return this.ctxAdapter.getActiveProxy().getWindow();
+  }
+
+  /** @throws BusinessError */
   @LogMethod
   getSystemFontList(): Array<string> {
-    this.fontList = font.getSystemFontList();
+    const activeWindow = this.getActiveWindow();
+    if (!activeWindow) {
+      LogUtil.warn(TAG, 'getSystemFontList skipped: no active window');
+      return [];
+    }
+    this.fontList = activeWindow.getUIContext().getFont().getSystemFontList();
     return this.fontList;
   }
 
@@ -65,9 +83,15 @@ export class FontAdapter extends BaseAdapter {
     return this.configFontList;
   }
 
+  /** @throws BusinessError */
   @LogMethod
   getFontInfo(name: string): string {
-    this.fontInfo = font.getFontByName(name);
+    const activeWindow = this.getActiveWindow();
+    if (!activeWindow) {
+      LogUtil.warn(TAG, `getFontInfo skipped: no active window, name: ${name}`);
+      return "";
+    }
+    this.fontInfo = activeWindow.getUIContext().getFont().getFontByName(name);
     if (this.fontInfo === undefined) {
       LogUtil.warn(TAG, `FontAdapter.GetFontInfo undefined, name: ${name} not found!`);
       return "";

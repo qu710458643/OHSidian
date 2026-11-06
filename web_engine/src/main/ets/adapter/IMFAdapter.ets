@@ -164,6 +164,7 @@ export class IMFAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   private onListenIME() {
     this.inputMethodController.on('insertText', (text: string) => {
       this.nativeContext.InsertTextCallback(text);

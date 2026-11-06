@@ -29,17 +29,18 @@
 
 import usb from '@ohos.usbManager';
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { DeviceAdapter } from '../adapter/DeviceAdapter';
 
 function implDeviceAdapter(): DeviceAdapter {
-  return Inject.getOrCreate(DeviceAdapter);
+  return getOrCreate(DeviceAdapter);
 }
 
 function getDevices(callback?: Function): boolean {
   return implDeviceAdapter().getDevices(callback);
 }
 
+/** @throws BusinessError */
 function hasRight(deviceName: string): boolean {
   return implDeviceAdapter().hasRight(deviceName);
 }

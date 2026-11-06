@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { ProcessAdapter } from '../adapter/ProcessAdapter';
 
 function implProcessAdapter(): ProcessAdapter {
-  return Inject.getOrCreate(ProcessAdapter);
+  return getOrCreate(ProcessAdapter);
 }
 
 function startChildProcess(callback: Function): void {

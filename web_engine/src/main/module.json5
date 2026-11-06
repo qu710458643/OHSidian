@@ -4,12 +4,10 @@
     "type": "har",
     "deviceTypes": [
       "tablet",
-      "2in1"
+      "2in1",
+      "phone"
     ],
     "requestPermissions": [
-      {
-        "name": "ohos.permission.SYSTEM_FLOAT_WINDOW"
-      },
       {
         "name": "ohos.permission.INTERNET"
       },

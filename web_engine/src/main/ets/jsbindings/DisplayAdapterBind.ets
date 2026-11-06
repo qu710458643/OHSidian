@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { DisplayAdapter, CompleteDisplay } from '../adapter/DisplayAdapter';
 
 function implDisplayAdapter(): DisplayAdapter {
-  return Inject.getOrCreate(DisplayAdapter);
+  return getOrCreate(DisplayAdapter);
 }
 
 function getDefaultDisplay(callback: (completeDisplay: CompleteDisplay) => void) {

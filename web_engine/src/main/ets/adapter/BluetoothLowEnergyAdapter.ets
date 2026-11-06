@@ -131,6 +131,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   createGattClientDevice(deviceId: string, onGattChangeCallback: (state: number) => void): void {
     if (BluetoothLowEnergyAdapter.GATT_MAP.hasKey(deviceId)) {
@@ -154,6 +155,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   disconnectGatt(deviceId: string): void {
     if (!BluetoothLowEnergyAdapter.GATT_MAP.hasKey(deviceId)) {
@@ -254,6 +256,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   static InitServices(deviceId: string, callback: (ServiceInfos: Array<ServiceInfo>) => void) {
     let device = BluetoothLowEnergyAdapter.GetGattDevice(deviceId);
     BluetoothLowEnergyAdapter.ClearMapByDevice(deviceId, BluetoothLowEnergyAdapter.SERVICE_MAP);
@@ -262,6 +265,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     BluetoothLowEnergyAdapter.setServicesMap(deviceId, device, callback)
   }
 
+  /** @throws BusinessError */
   static ClearMapByDevice(deviceId: string, map: HashMap<string, object>) {
     let keys = new ArrayList<string>();
     map.forEach((value, key) => {
@@ -274,6 +278,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     })
   }
 
+  /** @throws BusinessError */
   static GetGattDevice(deviceId: string): ble.GattClientDevice {
     if (BluetoothLowEnergyAdapter.GATT_MAP.hasKey(deviceId)) {
       let device = BluetoothLowEnergyAdapter.GATT_MAP.get(deviceId);
@@ -284,6 +289,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     return ble.createGattClientDevice(deviceId);
   }
 
+  /** @throws BusinessError */
   static setServicesMap(deviceId: string, device: ble.GattClientDevice, callback: (ServiceInfos: Array<ServiceInfo>) => void) {
     let ServiceInfos = new Array<ServiceInfo>();
     device.getServices().then((result: Array<ble.GattService>) => {
@@ -303,6 +309,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     })
   }
 
+  /** @throws BusinessError */
   @LogMethod
   readCharacteristic(id: string, deviceId: string, callback: (error_code: Number, value: ArrayBuffer) => void) {
     let characteristic = BluetoothLowEnergyAdapter.CHARACTERISTIC_MAP.get(id);
@@ -321,6 +328,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   deprecatedWriteCharacteristic(id: string, deviceId: string, value: ArrayBuffer, callback: (error_code: number) => void) {
     let characteristic = BluetoothLowEnergyAdapter.CHARACTERISTIC_MAP.get(id);
@@ -340,6 +348,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   writeCharacteristic(id: string, deviceId: string, writeType: number, value: ArrayBuffer, callback: (error_code: number) => void) {
     let characteristic = BluetoothLowEnergyAdapter.CHARACTERISTIC_MAP.get(id);
@@ -363,6 +372,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   readDescriptor(id: string, deviceId: string, callback: (error_code: Number, value: ArrayBuffer) => void) {
     let descriptor = BluetoothLowEnergyAdapter.DESCRIPTOR_MAP.get(id);
@@ -381,6 +391,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   subscribeToNotifications(id: string, deviceId: string, callback: (value: ArrayBuffer, error_code: number) => void) {
     let characteristic = BluetoothLowEnergyAdapter.CHARACTERISTIC_MAP.get(id);
@@ -408,6 +419,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   unsubscribeFromNotifications(id: string, deviceId: string, callback: (error_code: number) => void) {
     let device = BluetoothLowEnergyAdapter.GATT_MAP.get(deviceId)
@@ -430,6 +442,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
 
   }
 
+  /** @throws BusinessError */
   @LogMethod
   writeDescriptor(id: string, deviceId: string, value: ArrayBuffer, callback: (error_code: number) => void) {
     let descriptor = BluetoothLowEnergyAdapter.DESCRIPTOR_MAP.get(id);
@@ -458,11 +471,13 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     return BluetoothLowEnergyAdapter.ERROR_UN_KNOWN;
   }
 
+  /** @throws BusinessError */
   @LogMethod
   startGattDiscovery(deviceId: string, callback: (ServiceInfos: Array<ServiceInfo>) => void): void {
     BluetoothLowEnergyAdapter.InitServices(deviceId, callback);
   }
 
+  /** @throws BusinessError */
   @LogMethod
   createCharacteristic(serviceId: string, deviceId: string, callback: (characteristicInfo: Array<CharacteristicInfo>) => void) {
     let service = BluetoothLowEnergyAdapter.SERVICE_MAP.get(serviceId);
@@ -502,6 +517,7 @@ export class BluetoothLowEnergyAdapter extends BaseAdapter {
     callback(CharacteristicInfos);
   }
 
+  /** @throws BusinessError */
   @LogMethod
   createDescriptor(characteristicId: string, deviceId: string, callback: (DescriptorInfo: Array<DescriptorInfo>) => void) {
     let DescriptorInfos = new Array<DescriptorInfo>();

@@ -42,8 +42,7 @@ interface IUpdateStyle {
 };
 
 CustomChildProcess.toString();
-let storage = LocalStorage.getShared();
-@Entry(storage)
+@Entry({ useSharedStorage: true })
 @Component
 struct Index {
   @LocalStorageLink('updateStyle') updateStyle: IUpdateStyle = {

@@ -36,6 +36,7 @@ import { BaseAdapter } from '../common/BaseAdapter';
 import LogUtil from '../utils/LogUtil';
 import LogMethod from '../common/LogDecorator';
 import { camera } from '@kit.CameraKit';
+import { ContextAdapter } from './ContextAdapter';
 
 const TAG: string = 'media';
 
@@ -47,13 +48,16 @@ export class MediaAdapter extends BaseAdapter {
     height: 240
   };
   private abilityManager: AbilityManager;
+  private ctxAdapter: ContextAdapter;
 
   constructor(
-    @inject(AbilityManager) abilityManager: AbilityManager) {
+    @inject(AbilityManager) abilityManager: AbilityManager,
+    @inject(ContextAdapter) ctxAdapter: ContextAdapter) {
     super();
     this.previewReceiver =
       image.createImageReceiver(this.defaultSize, image.ImageFormat.JPEG, 8);
     this.abilityManager = abilityManager;
+    this.ctxAdapter = ctxAdapter;
   }
 
   @LogMethod
@@ -77,8 +81,13 @@ export class MediaAdapter extends BaseAdapter {
     })
   }
   
+  /** @throws BusinessError */
   getCameraOrientation(): number {
-    let context = getContext(this);
+    let context = this.ctxAdapter.getActiveContext();
+    if (context === undefined) {
+      LogUtil.error(TAG, 'get context failed');
+      return 0;
+    }
     let cameraManager = camera.getCameraManager(context);
     let cameraDevices = cameraManager.getSupportedCameras();
     if (cameraDevices.length) {

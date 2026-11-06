@@ -48,6 +48,7 @@ export default class BrowserEmbeddedAbility extends WebEmbeddedAbility {
     super.onDestroy()
   }
 
+  /** @throws BusinessError */
   onSessionCreate(want: Want, session: UIExtensionContentSession) {
     super.onSessionCreate(want, session)
   }

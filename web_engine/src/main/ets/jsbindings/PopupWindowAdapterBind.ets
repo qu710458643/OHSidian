@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from "../common/InjectModule";
+import { getOrCreate } from 'web-di';
 import lazy { PopupWindowAdapter } from '../adapter/PopupWindowAdapter';
 import type { NewWindowParam, WindowBound } from '../interface/CommonInterface';
 
 function implPopupWindowAdapter(): PopupWindowAdapter {
-  return Inject.getOrCreate(PopupWindowAdapter);
+  return getOrCreate(PopupWindowAdapter);
 }
 
 function createWindow(param: NewWindowParam) {
@@ -44,14 +44,17 @@ function closeWindow(id: number) {
   implPopupWindowAdapter().closeWindow(id);
 }
 
+/** @throws BusinessError */
 function showWindow(id: number) {
   implPopupWindowAdapter().showWindow(id);
 }
 
+/** @throws BusinessError */
 function hideWindow(id: number) {
   implPopupWindowAdapter().hideWindow(id);
 }
 
+/** @throws BusinessError */
 function activateWindow(id: number) {
   implPopupWindowAdapter().activateWindow(id);
 }
@@ -61,6 +64,7 @@ function setBounds(id: number,
   implPopupWindowAdapter().setBounds(id, bounds);
 }
 
+/** @throws BusinessError */
 function setWindowLimits(minWidth: number, minHeight: number, maxWidth: number, maxHeight: number, id: number) {
   implPopupWindowAdapter().setWindowLimits(minWidth, minHeight, maxWidth, maxHeight, id);
 }

@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { RunningLockAdapter } from '../adapter/RunningLockAdapter';
 
 function implRunningLockAdapter(): RunningLockAdapter {
-  return Inject.getOrCreate(RunningLockAdapter);
+  return getOrCreate(RunningLockAdapter);
 }
 
 function start() {

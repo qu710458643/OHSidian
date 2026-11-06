@@ -44,7 +44,7 @@ export class BrowserPolicyAdapter extends BaseAdapter {
       let buffer: ArrayBuffer = browser.getSelfManagedBrowserPolicy();
       let intBuffer: Uint8Array = new Uint8Array(buffer);
       let decoder: util.TextDecoder = util.TextDecoder.create("utf-8");
-      let stringData: string = decoder.decodeWithStream(intBuffer);
+      let stringData: string = decoder.decodeToString(intBuffer);
       return stringData;
     }
     catch(err) {

@@ -30,8 +30,7 @@
 import { WebWindowNode } from 'web_engine';
 import { KeyCode } from '@kit.InputKit';
 
-let storage = LocalStorage.getShared();
-@Entry(storage)
+@Entry({ useSharedStorage: true })
 @Component
 struct WindowNode {
   build() {

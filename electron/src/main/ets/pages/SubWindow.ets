@@ -29,8 +29,7 @@
 
 import { WebSubWindow } from 'web_engine';
 
-let subStorage = LocalStorage.getShared();
-@Entry(subStorage)
+@Entry({ useSharedStorage: true })
 @Component
 struct SubWindow {
   build() {

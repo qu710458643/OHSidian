@@ -36,7 +36,7 @@ import { BaseAdapter } from '../common/BaseAdapter';
 import LogUtil from '../utils/LogUtil';
 import LogMethod from '../common/LogDecorator';
 
-import promptAction from '@ohos.promptAction'
+import { window } from '@kit.ArkUI';
 import { ContextAdapter } from './ContextAdapter';
 
 const TAG: string = 'Print';
@@ -75,7 +75,12 @@ export class PrintAdapter extends BaseAdapter {
         let fileFd = 'fd://' + tempFile.fd;
         this.printFilesPath.push(fileFd);
       }
-      print.print(this.printFilesPath, this.ctxAdapter.getActiveContext())
+      const ctx = this.ctxAdapter.getActiveContext();
+      if (ctx === undefined) {
+        LogUtil.error(TAG, 'no active window context');
+        return;
+      }
+      print.print(this.printFilesPath, ctx)
         .then((printTask: print.PrintTask) => {
           printTask.on('succeed', () => {
             LogUtil.info(TAG, 'print state is succeed');
@@ -94,6 +99,7 @@ export class PrintAdapter extends BaseAdapter {
   @LogMethod
   PrintPdfFiles(pdfData: ArrayBuffer) {
     let printAdapter: print.PrintDocumentAdapter = {
+      /** @throws BusinessError */
       onStartLayoutWrite(jobId: string,
                          oldAttrs: print.PrintAttributes,
                          newAttrs: print.PrintAttributes,
@@ -112,7 +118,12 @@ export class PrintAdapter extends BaseAdapter {
       colorMode: print.PrintColorMode.COLOR_MODE_MONOCHROME,
       duplexMode: print.PrintDuplexMode.DUPLEX_MODE_NONE
     }
-    print.print('', printAdapter, printAttributes, this.ctxAdapter.getActiveContext())
+    const ctx = this.ctxAdapter.getActiveContext();
+    if (ctx === undefined) {
+      LogUtil.error(TAG, 'no active window context');
+      return;
+    }
+    print.print('', printAdapter, printAttributes, ctx)
       .then(() => {
         LogUtil.info(TAG, 'Succeeded in print pdf files.');
       }).catch((err: BusinessError) => {
@@ -122,8 +133,13 @@ export class PrintAdapter extends BaseAdapter {
 
   @LogMethod
   showPrintTipsDialog() {
-    try {
-      promptAction.showDialog({
+    const ctx = this.ctxAdapter.getActiveContext();
+    if (ctx === undefined) {
+      LogUtil.error(TAG, 'no active window context');
+      return;
+    }
+    window.getLastWindow(ctx).then((activeWindow) => {
+      activeWindow.getUIContext().getPromptAction().showDialog({
         title: $r('app.string.print_title'),
         message: $r('app.string.print_tip'),
         buttons: [
@@ -133,11 +149,10 @@ export class PrintAdapter extends BaseAdapter {
           },
         ],
       }).catch((err: Error) => {
-          LogUtil.error(TAG, 'showDialog error:' + err);
-        })
-    } catch (error) {
-      LogUtil.error(TAG, 'list file error: ' + JSON.stringify(error));
-    }
-    ;
+        LogUtil.error(TAG, 'showDialog error:' + err);
+      });
+    }).catch((err: Error) => {
+      LogUtil.error(TAG, 'showDialog error:' + err);
+    });
   }
 }

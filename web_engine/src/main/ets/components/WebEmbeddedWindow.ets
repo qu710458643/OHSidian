@@ -31,7 +31,7 @@ import { NativeContext, WindowBound } from '../interface/CommonInterface';
 import lazy { DragDropAdapter } from '../adapter/DragDropAdapter';
 import LogUtil from '../utils/LogUtil';
 import { CommandType, ConfigData, ContextType, PanAction } from '../common/Constants';
-import Inject from '../common/InjectModule';
+import { get } from 'web-di';
 import JsBindingUtils from '../utils/JsBindingUtils';
 import { MultiInputAdapter } from '../adapter/MultiInputAdapter';
 import { DragParamManager } from '../common/DragParamManager';
@@ -47,10 +47,10 @@ export struct WebEmbeddedWindow {
   private LIBRARY_NAME: string = 'adapter';
   private XCOMPONENT_NAME: string = 'xcomponent';
   private MODULE_NAME: string = this.xComponentId + ':' + this.XCOMPONENT_NAME;
-  private dragDropAdapter: DragDropAdapter = Inject.get(DragDropAdapter);
+  private dragDropAdapter: DragDropAdapter = get(DragDropAdapter);
   private nativeContext: NativeContext = JsBindingUtils.getNativeContext(ContextType.kMainProcess);
-  private multiInputAdapter: MultiInputAdapter = Inject.get(MultiInputAdapter);
-  private dragParamManager = Inject.get(DragParamManager);
+  private multiInputAdapter: MultiInputAdapter = get(MultiInputAdapter);
+  private dragParamManager = get(DragParamManager);
 
   aboutToAppear(): void {
     this.dragParamManager.addDragContextData({
@@ -105,8 +105,8 @@ export struct WebEmbeddedWindow {
       .onDragMove((event?: DragEvent) => {
         let windowX = event?.getWindowX();
         let windowY = event?.getWindowY();
-        windowX = vp2px(windowX);
-        windowY = vp2px(windowY);
+        windowX = this.getUIContext().vp2px(windowX);
+        windowY = this.getUIContext().vp2px(windowY);
         this.dragDropAdapter.dragMove(this.xComponentId, windowX, windowY);
       })
       .onDragLeave(() => {
@@ -139,6 +139,7 @@ export struct WebEmbeddedWindow {
       .renderFit(RenderFit.TOP_LEFT)
   }
 
+  /** @throws BusinessError */
   private setDefaultBounds() {
     if (this.xComponentId !== ConfigData.DEFAULT_WINDOW_ID) {
       return;
@@ -172,7 +173,7 @@ export struct WebEmbeddedWindow {
     if (this.startUri.length !== 0) {
       default_uri = this.startUri;
     }
-    let resDir = '--bundle-installation-dir=' + getContext().resourceDir;
+    let resDir = '--bundle-installation-dir=' + (this.getUIContext().getHostContext()?.resourceDir ?? '');
     let vec_args = [override_ua, resDir, default_uri];
     return vec_args;
   }

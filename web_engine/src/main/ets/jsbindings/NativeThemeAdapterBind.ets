@@ -29,17 +29,18 @@
 
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { NativeThemeAdapter } from '../adapter/NativeThemeAdapter';
 
 function implNativeThemeAdapter(): NativeThemeAdapter {
-  return Inject.getOrCreate(NativeThemeAdapter);
+  return getOrCreate(NativeThemeAdapter);
 }
 
 function getSystemNativeTheme(): ConfigurationConstant.ColorMode {
   return implNativeThemeAdapter().getSystemNativeTheme();
 }
 
+/** @throws BusinessError */
 function setAppColorMode(colorMode: ConfigurationConstant.ColorMode) {
   implNativeThemeAdapter().setAppColorMode(colorMode);
 }

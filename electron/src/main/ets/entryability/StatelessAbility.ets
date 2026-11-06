@@ -49,6 +49,7 @@ export default class StatelessAbility extends WebAbility {
     super.onDestroy();
   }
  
+  /** @throws BusinessError */
   onWindowStageCreate(windowStage: window.WindowStage) {
     super.onWindowStageCreate(windowStage);
     if (deviceInfo.sdkApiVersion >= 14) {

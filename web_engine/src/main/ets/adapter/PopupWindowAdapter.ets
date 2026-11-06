@@ -76,6 +76,7 @@ export class PopupWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   private adjustWindow(windowClass: window.Window, param: NewWindowParam, windowType: WindowType) {
     super.initialize(param.window_id, windowClass);
@@ -137,6 +138,7 @@ export class PopupWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   showWindow(id: number) {
     let windowClass = this.abilityManager.getProxy(id)?.getWindow();
@@ -148,6 +150,7 @@ export class PopupWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   hideWindow(id: number) {
     let windowClass = this.abilityManager.getProxy(id)?.getWindow();
@@ -159,6 +162,7 @@ export class PopupWindowAdapter extends BaseWindowAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   activateWindow(id: number) {
     this.showWindow(id);
@@ -187,6 +191,7 @@ export class PopupWindowAdapter extends BaseWindowAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setWindowLimits(minWidth: number,
                   minHeight: number,

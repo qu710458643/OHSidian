@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { ExternalProtocolAdapter } from '../adapter/ExternalProtocolAdapter';
 
 function implExternalProtocolAdapter(): ExternalProtocolAdapter {
-  return Inject.getOrCreate(ExternalProtocolAdapter);
+  return getOrCreate(ExternalProtocolAdapter);
 }
 
 function openExternal(urlStr: string) {

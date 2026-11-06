@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from "../common/InjectModule";
+import { getOrCreate } from 'web-di';
 import lazy { ElectronAppAdapter } from '../adapter/ElectronAppAdapter';
 import display from '@ohos.display';
 
 function implElectronAppAdapter(): ElectronAppAdapter {
-  return Inject.getOrCreate(ElectronAppAdapter);
+  return getOrCreate(ElectronAppAdapter);
 }
 
 function getPreferredLanguageList(): Array<string> {
@@ -56,6 +56,7 @@ function relaunch(args: Array<string>, execPath: string): void {
   return implElectronAppAdapter().relaunch(args, execPath);
 }
 
+/** @throws BusinessError */
 function openApplicationInfoEntry(): void {
   return implElectronAppAdapter().openApplicationInfoEntry();
 }
@@ -68,6 +69,7 @@ function setBadgeCount(count: number): void {
   return implElectronAppAdapter().setBadgeCount(count);
 }
 
+/** @throws BusinessError */
 function getAvailableArea(displayId: number, callback: (availArea: display.Rect) => void) {
   implElectronAppAdapter().getAvailableArea(displayId, callback);
 }

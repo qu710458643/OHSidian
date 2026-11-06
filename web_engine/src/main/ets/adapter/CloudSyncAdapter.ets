@@ -2,17 +2,17 @@
  * Copyright (c) 2023-2025 Haitai FangYuan Co., Ltd.
  */
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { cloudStorage } from '@kit.CloudFoundationKit';
 import { BusinessError } from '@ohos.base';
 import { common } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import { fileIo } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
-
 import { BaseAdapter } from '../common/BaseAdapter';
 import LogUtil from '../utils/LogUtil';
 import LogMethod from '../common/LogDecorator';
+import { ContextAdapter } from './ContextAdapter';
 
 interface ILoginInfo {
   status: boolean;
@@ -39,6 +39,12 @@ export class CloudSyncAdapter extends BaseAdapter {
   private bucket: cloudStorage.StorageBucket | null = null;
   private isInitialized: boolean = false;
   private userId: string = '';
+  private ctxAdapter: ContextAdapter;
+
+  constructor(@inject(ContextAdapter) ctxAdapter: ContextAdapter) {
+    super();
+    this.ctxAdapter = ctxAdapter;
+  }
 
   @LogMethod
   initCloudSync(context: Context, onCompleted: (ret: boolean) => void): void {
@@ -85,7 +91,7 @@ export class CloudSyncAdapter extends BaseAdapter {
     const cloudPath: string = this.buildCloudPath(vaultName, filePath);
 
     try {
-      const task: object = await this.bucket.uploadFile(getContext() as common.Context, {
+      const task: object = await this.bucket.uploadFile(this.ctxAdapter.getContext(), {
         localPath: localPath,
         cloudPath: cloudPath
       });
@@ -122,7 +128,7 @@ export class CloudSyncAdapter extends BaseAdapter {
     const cloudPath: string = this.buildCloudPath(vaultName, filePath);
 
     try {
-      const task: object = await this.bucket.downloadFile(getContext() as common.Context, {
+      const task: object = await this.bucket.downloadFile(this.ctxAdapter.getContext(), {
         cloudPath: cloudPath,
         localPath: localPath
       });
@@ -258,6 +264,7 @@ export class CloudSyncAdapter extends BaseAdapter {
         ctx: activeContext
       };
 
+      // @SuppressWarnings permission
       window.createWindow(config, (err: BusinessError, data: window.Window): void => {
         if (err.code) {
           LogUtil.error(TAG, 'createWindow failed: ' + JSON.stringify(err));
@@ -359,7 +366,7 @@ export class CloudSyncAdapter extends BaseAdapter {
         fileIo.readSync(tf.fd, buf);
         fileIo.closeSync(tf);
         const decoder: util.TextDecoder = new util.TextDecoder();
-        const content: string = decoder.decodeWithStream(new Uint8Array(buf), undefined);
+        const content: string = decoder.decodeToString(new Uint8Array(buf));
         const triggerTime: number = parseInt(content);
         // Only process if within 30 seconds
         if (Date.now() - triggerTime < 30000) {

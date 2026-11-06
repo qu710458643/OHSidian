@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { get } from 'web-di';
 import { ContextAdapter } from '../adapter/ContextAdapter';
 
 
 function implContextAdapter(): ContextAdapter {
-  return Inject.get(ContextAdapter);
+  return get(ContextAdapter);
 }
 
 function setActiveWindow(id: string) {

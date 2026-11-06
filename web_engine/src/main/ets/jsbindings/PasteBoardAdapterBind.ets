@@ -29,12 +29,12 @@
 
 import image from '@ohos.multimedia.image';
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import type { OhosPasteDataRecord } from '../interface/CommonInterface';
 import lazy { PasteBoardAdapter } from '../adapter/PasteBoardApadter';
 
 function implPasteBoardAdapter(): PasteBoardAdapter {
-  return Inject.getOrCreate(PasteBoardAdapter);
+  return getOrCreate(PasteBoardAdapter);
 }
 
 function setPasteData(recordInfo: OhosPasteDataRecord, arrayBuff: ArrayBuffer) : void {

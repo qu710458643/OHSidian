@@ -28,15 +28,16 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { AppWindowAdapter } from '../adapter/AppWindowAdapter';
 import type { NewWindowParam, PointCoordinate, WindowBound, ILoginInfo } from '../interface/CommonInterface';
 import { window } from '@kit.ArkUI';
 
 function implAppWindowAdapter(): AppWindowAdapter {
-  return Inject.getOrCreate(AppWindowAdapter);
+  return getOrCreate(AppWindowAdapter);
 }
 
+/** @throws BusinessError */
 function createWindow(param: NewWindowParam) {
   implAppWindowAdapter().createWindow(param);
 }
@@ -69,6 +70,7 @@ function restore(id: number) {
   implAppWindowAdapter().restore(id);
 }
 
+/** @throws BusinessError */
 function setBounds(id: number,
                    hasFrame: boolean,
                    bounds: WindowBound,
@@ -80,6 +82,7 @@ function setEnabled(enable: boolean, id: number) {
   implAppWindowAdapter().setEnabled(enable, id);
 }
 
+/** @throws BusinessError */
 function setWindowLimits(minWidth: number,
                          minHeight: number,
                          maxWidth: number,
@@ -88,6 +91,7 @@ function setWindowLimits(minWidth: number,
   implAppWindowAdapter().setWindowLimits(minWidth, minHeight, maxWidth, maxHeight, id);
 }
 
+/** @throws BusinessError */
 function maximize(id: number) {
   implAppWindowAdapter().maximize(id);
 }
@@ -112,26 +116,32 @@ function setUseNativeFrame(id: number, useNativeFrame: boolean) {
   implAppWindowAdapter().setUseNativeFrame(id, useNativeFrame);
 }
 
+/** @throws BusinessError */
 function setBackgroundColor(id: number, argbColor: number) {
   implAppWindowAdapter().setBackgroundColor(id, argbColor);
 }
 
+/** @throws BusinessError */
 function setOpacity(id: number, opacity: number) {
   implAppWindowAdapter().setOpacity(id, opacity);
 }
 
+/** @throws BusinessError */
 function setMaximizable(id: number, maximizable: boolean) {
   implAppWindowAdapter().setMaximizable(id, maximizable);
 }
 
+/** @throws BusinessError */
 function setMinimizable(id: number, minimizable: boolean) {
   implAppWindowAdapter().setMinimizable(id, minimizable);
 }
 
+/** @throws BusinessError */
 function setClosable(id: number, closable: boolean) {
   implAppWindowAdapter().setClosable(id, closable);
 }
 
+/** @throws BusinessError */
 function setWindowButtonVisibility(id: number, visible: boolean) {
   implAppWindowAdapter().setWindowButtonVisibility(id, visible);
 }
@@ -140,6 +150,7 @@ function getWindowButtonVisibility(id: number): boolean {
   return implAppWindowAdapter().getWindowButtonVisibility(id);
 }
 
+/** @throws BusinessError */
 function setAlwaysOnTop(id: number, onTop: boolean) {
   implAppWindowAdapter().setAlwaysOnTop(id, onTop);
 }
@@ -165,10 +176,12 @@ function getWindowsByCoordinate(coordinate: PointCoordinate,
   implAppWindowAdapter().getWindowsByCoordinate(coordinate, callback);
 }
 
+/** @throws BusinessError */
 function setWindowModal(modal: boolean, id: number) {
   implAppWindowAdapter().setWindowModal(modal, id);
 }
 
+/** @throws BusinessError */
 function getWindowStatus(id: number): window.WindowStatusType {
   return implAppWindowAdapter().getWindowStatus(id);
 }
@@ -194,6 +207,7 @@ function showHuaweiQuickLogin(
   implAppWindowAdapter().showHuaweiQuickLogin(id, show, bounds, callback);
 }
 
+/** @throws BusinessError */
 function getWindowId(id: number): number {
   return implAppWindowAdapter().getWindowId(id);
 }

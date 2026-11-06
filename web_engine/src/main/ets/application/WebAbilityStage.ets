@@ -37,8 +37,7 @@ import lazy { CommonDependencyProvider } from '../common/CommonDependencyProvide
 import { AbilityConstant } from '@kit.AbilityKit';
 import { ConfigurationConstant, Configuration } from '@kit.AbilityKit';
 import { NativeThemeAdapter } from '../adapter/NativeThemeAdapter'
-import Inject from '../common/InjectModule';
-
+import { get } from 'web-di';
 const DELAYED_TIME = 0;
 export class WebAbilityStage extends AbilityStage {
 
@@ -87,7 +86,7 @@ export class WebAbilityStage extends AbilityStage {
       }
       import('../jsbindings/JsBindingMethod').then((ns:ESObject) => {
         ns.JsBindingMethod.bind();
-        this.nativeThemeAdapter = Inject.get(NativeThemeAdapter);
+        this.nativeThemeAdapter = get(NativeThemeAdapter);
       }).catch(()=>{
         console.log('import failed');
       });

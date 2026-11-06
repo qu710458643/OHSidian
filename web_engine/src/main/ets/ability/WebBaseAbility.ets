@@ -118,6 +118,7 @@ export class WebBaseAbility extends UIAbility implements WebProxy {
     }
   }
 
+  /** @throws BusinessError */
   onWindowStageCreate(windowStage: window.WindowStage) {
     this.windowStage = windowStage;
     this.originWindowId = windowStage?.getMainWindowSync().getWindowProperties().id;
@@ -128,6 +129,7 @@ export class WebBaseAbility extends UIAbility implements WebProxy {
     return this.windowStage;
   }
 
+  /** @throws BusinessError */
   getWindow(): window.Window | undefined {
     return this.windowStage?.getMainWindowSync();
   }

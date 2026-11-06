@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { DefaultApplicationAdapter } from '../adapter/DefaultApplicationAdapter';
 
 function implDefaultApplication(): DefaultApplicationAdapter {
-  return Inject.getOrCreate(DefaultApplicationAdapter);
+  return getOrCreate(DefaultApplicationAdapter);
 }
 
 function isDefaultApplication(): boolean {

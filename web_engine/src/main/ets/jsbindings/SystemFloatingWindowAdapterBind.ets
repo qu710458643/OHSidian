@@ -28,36 +28,42 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import type { NewWindowParam, WindowBound } from '../interface/CommonInterface';
 import lazy { SystemFloatingWindowAdapter } from '../adapter/SystemFloatingWindowAdapter';
 
 function implSystemFloatingWindowAdapter(): SystemFloatingWindowAdapter {
-  return Inject.getOrCreate(SystemFloatingWindowAdapter);
+  return getOrCreate(SystemFloatingWindowAdapter);
 }
 
+/** @throws BusinessError */
 function createWindow(param: NewWindowParam) {
   implSystemFloatingWindowAdapter().createWindow(param);
 }
 
+/** @throws BusinessError */
 function closeWindow(id: number) {
   implSystemFloatingWindowAdapter().closeWindow(id);
 }
 
+/** @throws BusinessError */
 function showWindow(id: number) {
   implSystemFloatingWindowAdapter().showWindow(id);
 }
 
+/** @throws BusinessError */
 function hideWindow(id: number) {
   implSystemFloatingWindowAdapter().hideWindow(id);
 }
 
+/** @throws BusinessError */
 function setBounds(id: number,
                    bounds: WindowBound,
                    onCompleted: (ret: boolean) => void) {
   implSystemFloatingWindowAdapter().setBounds(id, bounds, onCompleted);
 }
 
+/** @throws BusinessError */
 function setWindowLimits(minWidth: number, minHeight: number, maxWidth: number, maxHeight: number, id: number) {
   implSystemFloatingWindowAdapter().setWindowLimits(minWidth, minHeight, maxWidth, maxHeight, id);
 }

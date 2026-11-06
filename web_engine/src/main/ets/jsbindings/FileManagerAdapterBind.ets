@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { FileManagerAdapter } from '../adapter/FileManagerAdapter';
 
 function implFileManagerAdapter(): FileManagerAdapter {
-  return Inject.getOrCreate(FileManagerAdapter);
+  return getOrCreate(FileManagerAdapter);
 }
 
 function openItemInFolder(filePath: string) {

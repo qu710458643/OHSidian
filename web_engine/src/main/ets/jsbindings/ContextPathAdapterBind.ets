@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { ContextPathAdapter } from '../adapter/ContextPathAdapter';
 
 function implContextPathAdapter(): ContextPathAdapter {
-  return Inject.getOrCreate(ContextPathAdapter);
+  return getOrCreate(ContextPathAdapter);
 }
 
 function getResourceDir(): string {

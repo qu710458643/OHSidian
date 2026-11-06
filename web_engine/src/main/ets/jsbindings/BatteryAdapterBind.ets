@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { BatteryAdapter } from '../adapter/BatteryAdapter';
 import type { BatteryInfo } from '../interface/CommonInterface'
 
 function implBatteryAdapter(): BatteryAdapter {
-  return Inject.getOrCreate(BatteryAdapter);
+  return getOrCreate(BatteryAdapter);
 }
 
 function getBatteryInfo(callback: (batteryStatus: BatteryInfo) => void): boolean {

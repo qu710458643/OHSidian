@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { SpeechAdapter } from '../adapter/SpeechAdapter';
 import type { EngineCreationParams, SpeakingParams } from '../interface/CommonInterface';
 
 function implSpeechAdapter(): SpeechAdapter {
-  return Inject.getOrCreate(SpeechAdapter);
+  return getOrCreate(SpeechAdapter);
 }
 
 function createTextToSpeechEngineAndSetListener(

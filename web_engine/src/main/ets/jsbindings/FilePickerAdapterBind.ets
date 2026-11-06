@@ -28,14 +28,15 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { FilePickerAdapter } from '../adapter/FilePickerAdapter';
 import type { SaveAsDialogParams, SelectFileDialogParams } from '../interface/CommonInterface';
 
 function implFilePickerAdapter(): FilePickerAdapter {
-  return Inject.getOrCreate(FilePickerAdapter);
+  return getOrCreate(FilePickerAdapter);
 }
 
+/** @throws BusinessError */
 function showDocumentViewPicker(params: SelectFileDialogParams, callback: (path: string) => void) {
   implFilePickerAdapter().showDocumentViewPicker(params, callback);
 }
@@ -44,6 +45,7 @@ function showDirDocumentViewPicker(file_access_persist: boolean, callback: (path
   implFilePickerAdapter().showDirDocumentViewPicker(file_access_persist, callback);
 }
 
+/** @throws BusinessError */
 function showSaveAsDocumentViewPicker(params: SaveAsDialogParams, callback: (path: string) => void) {
   implFilePickerAdapter().showSaveAsDocumentViewPicker(params, callback);
 }

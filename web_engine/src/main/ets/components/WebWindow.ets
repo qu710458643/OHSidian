@@ -32,7 +32,7 @@ import { AbilityManager } from '../common/AbilityManager';
 import lazy { DragDropAdapter } from '../adapter/DragDropAdapter';
 import LogUtil from '../utils/LogUtil';
 import { ConfigData, ContextType, PanAction } from '../common/Constants';
-import Inject from '../common/InjectModule';
+import { get } from 'web-di';
 import JsBindingUtils from '../utils/JsBindingUtils';
 import { MultiInputAdapter } from '../adapter/MultiInputAdapter';
 import { DragParamManager } from '../common/DragParamManager';
@@ -76,6 +76,7 @@ class WindowNodeController extends NodeController {
     this.config = config;
   }
 
+  /** @throws BusinessError */
   makeNode(uiContext: UIContext): FrameNode | null {
     let node = new FrameNode(uiContext);
     this.xComponent = TypedNode.createNode(uiContext, "XComponent", {
@@ -91,7 +92,7 @@ class WindowNodeController extends NodeController {
       .renderFit(RenderFit.TOP_LEFT)
       .onLoad(() => {
         this.setDefaultBounds();
-        let vec_args = this.buildArgs();
+        let vec_args = this.buildArgs(uiContext);
         this.config.nativeContext.runBrowser(vec_args);
         if (this.config.uri)
           this.config.nativeContext.ExecuteCommand(CommandType.kNewWindow, { url: this.config.uri, is_sync: true });
@@ -100,6 +101,7 @@ class WindowNodeController extends NodeController {
     return node;
   }
 
+  /** @throws BusinessError */
   private setDefaultBounds() {
     if (this.config.xComponentId !== ConfigData.DEFAULT_WINDOW_ID)
       return;
@@ -128,8 +130,8 @@ class WindowNodeController extends NodeController {
     }
   }
 
-  private buildArgs(): string[] {
-    let resDir = '--bundle-installation-dir=' + getContext().resourceDir;
+  private buildArgs(uiContext: UIContext): string[] {
+    let resDir = '--bundle-installation-dir=' + (uiContext.getHostContext()?.resourceDir ?? '');
     let vec_args = [resDir];
     this.config.electronRelaunchArgs.forEach((arg: string) => {
       vec_args.push(arg);
@@ -147,10 +149,10 @@ export struct WebWindow {
   @LocalStorageLink('electronRelaunchArgs') electronRelaunchArgs: string[] = [];
   private XCOMPONENT_NAME: string = 'xcomponent';
   private MODULE_NAME: string = this.xComponentId + ':' + this.XCOMPONENT_NAME;
-  private dragDropAdapter: DragDropAdapter = Inject.get(DragDropAdapter);
-  private multiInputAdapter: MultiInputAdapter = Inject.get(MultiInputAdapter);
-  private abilityManager = Inject.get(AbilityManager);
-  private dragParamManager = Inject.get(DragParamManager);
+  private dragDropAdapter: DragDropAdapter = get(DragDropAdapter);
+  private multiInputAdapter: MultiInputAdapter = get(MultiInputAdapter);
+  private abilityManager = get(AbilityManager);
+  private dragParamManager = get(DragParamManager);
   private nativeContext: NativeContext = JsBindingUtils.getNativeContext(ContextType.kMainProcess);
 
   @State private messageBoxParams: IMessageBoxParams = {
@@ -243,8 +245,8 @@ export struct WebWindow {
       .onDragMove((event?: DragEvent) => {
         let windowX = event?.getWindowX();
         let windowY = event?.getWindowY();
-        windowX = vp2px(windowX);
-        windowY = vp2px(windowY);
+        windowX = this.getUIContext().vp2px(windowX);
+        windowY = this.getUIContext().vp2px(windowY);
         this.dragDropAdapter.dragMove(this.xComponentId, windowX, windowY);
       })
       .onDragLeave(() => {

@@ -28,11 +28,11 @@
  */
 
 import lazy { BrowserPolicyAdapter } from '../adapter/BrowserPolicyAdapter';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import JsBindingUtils from '../utils/JsBindingUtils';
 
 function browserPolicyAdapter(): BrowserPolicyAdapter {
-  return Inject.getOrCreate(BrowserPolicyAdapter);
+  return getOrCreate(BrowserPolicyAdapter);
 }
 
 function getManagedBrowserPolicy(): string {

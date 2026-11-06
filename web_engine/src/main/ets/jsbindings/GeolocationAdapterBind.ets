@@ -28,12 +28,12 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { GeolocationAdapter } from '../adapter/GeolocationAdapter';
 import type geoLocationManager from '@ohos.geoLocationManager';
 
 function implGeolocationAdapter(): GeolocationAdapter {
-  return Inject.getOrCreate(GeolocationAdapter);
+  return getOrCreate(GeolocationAdapter);
 }
 
 function startListening(

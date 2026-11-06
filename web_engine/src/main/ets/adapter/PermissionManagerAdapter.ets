@@ -39,8 +39,7 @@ import LaunchHelper from '../utils/LaunchHelper';
 import { ContextAdapter } from './ContextAdapter';
 import { fileShare } from '@kit.CoreFileKit';
 import preferences from '@ohos.data.preferences';
-import prompt from '@ohos.promptAction'
-import { promptAction } from '@kit.ArkUI';
+import { window } from '@kit.ArkUI';
 import { Want } from '@kit.AbilityKit';
 
 const CONFIRM: number = 0;
@@ -287,6 +286,7 @@ export class PermissionManagerAdapter extends BaseAdapter {
       });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   openPermissionConfirm(type:string, callback: Function) {
     LogUtil.info(TAG, `permision type is: ${JSON.stringify(type)}`);
@@ -316,6 +316,7 @@ export class PermissionManagerAdapter extends BaseAdapter {
     this.openPermissionConfirmDialog(activeContext, confirmParams, callback);
   }
 
+  /** @throws BusinessError */
   private openPasteboardPermissionConfirm(activeContext: Context, pasteboardConfirmParams: ConfirmParams) {
     pasteboardConfirmParams.title = activeContext.resourceManager.getStringSync($r("app.string.pasteBoard_dialog_title").id);
     pasteboardConfirmParams.content = activeContext.resourceManager.getStringSync($r("app.string.pasteBoard_dialog_content").id);
@@ -326,35 +327,38 @@ export class PermissionManagerAdapter extends BaseAdapter {
   }
 
   private async openPermissionConfirmDialog(activeContext: Context, confirmParams: ConfirmParams, callback: Function) {
-    promptAction.showDialog({
-      title: confirmParams.title,
-      message: confirmParams.content,
-      buttons: [
-        {
-          text: confirmParams.confirm,
-          color: '#000000'
-        },
-        {
-          text: confirmParams.cancel,
-          color: '#000000'
-        }
-      ],
-    }).then(data => {
-      if (data.index === CONFIRM) {
-        let wantInfo: Want = {
-          bundleName: 'com.huawei.hmos.settings',
-          abilityName: 'com.huawei.hmos.settings.MainAbility',
-          uri: 'application_info_entry',
-          parameters: {
-            pushParams: this.bundleName
+    try {
+      const activeWindow = await window.getLastWindow(activeContext);
+      await activeWindow.getUIContext().getPromptAction().showDialog({
+        title: confirmParams.title,
+        message: confirmParams.content,
+        buttons: [
+          {
+            text: confirmParams.confirm,
+            color: '#000000'
+          },
+          {
+            text: confirmParams.cancel,
+            color: '#000000'
           }
+        ],
+      }).then(data => {
+        if (data.index === CONFIRM) {
+          let wantInfo: Want = {
+            bundleName: 'com.huawei.hmos.settings',
+            abilityName: 'com.huawei.hmos.settings.MainAbility',
+            uri: 'application_info_entry',
+            parameters: {
+              pushParams: this.bundleName
+            }
+          }
+          LaunchHelper.Launch(activeContext, wantInfo);
         }
-        LaunchHelper.Launch(activeContext, wantInfo);
-      }
-      callback(data.index);
-    }).catch((err: Error) => {
+        callback(data.index);
+      });
+    } catch (err) {
       callback(ERROR);
       LogUtil.error(TAG, `showDialog failed, caused by:${JSON.stringify(err)}`);
-    });
+    }
   }
 }

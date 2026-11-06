@@ -96,6 +96,7 @@ export class NotificationAdapter extends BaseAdapter {
     })
   }
 
+  /** @throws BusinessError */
   @LogMethod
   async closeNotification(notificationId: number) {
     notificationManager.cancel(notificationId);
@@ -173,6 +174,7 @@ export class NotificationAdapter extends BaseAdapter {
     })
   }
 
+  /** @throws BusinessError */
   private async createNotificationRequest(
     request: NotificationAdapterRequest): Promise<notificationManager.NotificationRequest> {
     let notificationRequest: notificationManager.NotificationRequest = {
@@ -259,6 +261,7 @@ export class NotificationAdapter extends BaseAdapter {
     return notificationIcon;
   }
 
+  /** @throws BusinessError */
   private async createWantAgent(notificationId: number,
     actionName: string,
     buttonIndex: number | undefined): Promise<WantAgent> {
@@ -339,6 +342,7 @@ export class NotificationAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   private async createActionButtons(notificationId: number,
     buttons: Array<NotificationAdapterButton>)
     : Promise<Array<notificationManager.NotificationActionButton>> {

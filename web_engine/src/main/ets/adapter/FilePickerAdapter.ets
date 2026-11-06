@@ -58,6 +58,7 @@ export class FilePickerAdapter extends BaseAdapter {
     this.permissionManagerAdapter = permissionManagerAdapter;
   }
 
+  /** @throws BusinessError */
   @LogMethod
   showDocumentViewPicker(params: SelectFileDialogParams, callback: (path: string) => void) {
     let DocumentSelectOptions = new picker.DocumentSelectOptions();
@@ -109,6 +110,7 @@ export class FilePickerAdapter extends BaseAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   showSaveAsDocumentViewPicker(params: SaveAsDialogParams, callback: (path: string) => void) {
     let DocumentSaveOptions = new picker.DocumentSaveOptions();
@@ -174,6 +176,7 @@ export class FilePickerAdapter extends BaseAdapter {
     return copy;
   }
 
+  /** @throws BusinessError */
   private getFilterArray(filters: Array<Array<string>>, descriptions: Array<string>): Array<string> {
     const context = this.ctxAdapter.getContext();
     let defaultDescription = context.resourceManager.getStringSync(this.defaultDescriptionId);

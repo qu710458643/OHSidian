@@ -35,7 +35,7 @@ import { BusinessError, deviceInfo, settings } from '@kit.BasicServicesKit';
 import { NativeThemeAdapter } from '../adapter/NativeThemeAdapter';
 import { AbilityManager } from '../common/AbilityManager';
 import { Configuration } from '@ohos.app.ability.Configuration';
-import Inject from '../common/InjectModule';
+import { get, getOrCreate } from 'web-di';
 import { CaptionButtonRect, WindowBound } from '../interface/CommonInterface';
 import CheckEmptyUtils from '../utils/CheckEmptyUtils';
 import { WebBaseAbility } from './WebBaseAbility';
@@ -61,14 +61,14 @@ export class WebAbility extends WebBaseAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
     super.onCreate(want, launchParam);
 
-    this.abilityManager = Inject.get(AbilityManager);
-    this.nativeThemeAdapter = Inject.get(NativeThemeAdapter);
+    this.abilityManager = get(AbilityManager);
+    this.nativeThemeAdapter = get(NativeThemeAdapter);
 
-    Inject.get(PermissionManagerAdapter).initPermissions();
+    get(PermissionManagerAdapter).initPermissions();
 
     // Initialize cloud sync
     try {
-      const cloudSync = Inject.getOrCreate(CloudSyncAdapter);
+      const cloudSync = getOrCreate(CloudSyncAdapter);
       cloudSync.initCloudSync(this.context, (ret: boolean) => {
         LogUtil.info(TAG, 'CloudSync init: ' + (ret ? 'success' : 'failed'));
         // Start polling for login triggers
@@ -81,6 +81,7 @@ export class WebAbility extends WebBaseAbility {
     }
   }
 
+  /** @throws BusinessError */
   onWindowStageCreate(windowStage: window.WindowStage) {
     super.onWindowStageCreate(windowStage);
 
@@ -256,12 +257,13 @@ export class WebAbility extends WebBaseAbility {
 
       // window title button rect change callback must registered after loadContent/setUIContent
       try {
+        let uiContext = window.getUIContext();
         window.on("windowTitleButtonRectChange", (titleButtonRect) => {
           let rect: CaptionButtonRect = {
-            right: vp2px(titleButtonRect.right),
-            top: vp2px(titleButtonRect.top),
-            width: vp2px(titleButtonRect.width),
-            height: vp2px(titleButtonRect.height)
+            right: uiContext.vp2px(titleButtonRect.right),
+            top: uiContext.vp2px(titleButtonRect.top),
+            width: uiContext.vp2px(titleButtonRect.width),
+            height: uiContext.vp2px(titleButtonRect.height)
           };
           this.nativeContext.OnCaptionButtonRectChange(this.xcomponentId, rect);
         });
@@ -274,7 +276,7 @@ export class WebAbility extends WebBaseAbility {
       }
 
       if(deviceInfo.deviceType == 'tablet') {
-        const context: Context = getContext(this);
+        const context: Context = this.context;
         let res: boolean = settings.registerKeyObserver(context, 
           'window_pcmode_switch_status', settings.domainName.USER_PROPERTY, () => {
           this.updateWindowPcmodeSwitchStatus(context);

@@ -29,7 +29,6 @@
 
 import type image from '@ohos.multimedia.image';
 import type inputMethod from '@ohos.inputMethod';
-import type GestureEvent from '@ohos.multimodalInput.gestureEvent';
 import type ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import type common from '@ohos.app.ability.common';
 import type window from '@ohos.window';
@@ -65,6 +64,31 @@ export class JSBind {
   bindFunction: (name: string, func: Function) => number;
 }
 
+export interface FingerInfo {
+  id: number;
+  globalX: number;
+  globalY: number;
+  localX: number;
+  localY: number;
+  displayX: number;
+  displayY: number;
+}
+
+export interface GestureEvent {
+  repeat: boolean;
+  fingerList: FingerInfo[];
+  offsetX: number;
+  offsetY: number;
+  angle: number;
+  speed: number;
+  scale: number;
+  pinchCenterX: number;
+  pinchCenterY: number;
+  velocityX: number;
+  velocityY: number;
+  velocity: number;
+}
+
 export interface CommandParameter {
   url?: string;
   user_data?: string;
@@ -85,8 +109,8 @@ export interface NativeContext {
   openFile: (filePath: string) => void;
   readImageFromReceiver: (receiver: image.ImageReceiver) => image.Image;
   JSBind: JSBind;
-  OnPanEventCB: (action: number, id: string, event: GestureEvent) => void;
-  OnPinchEventCB: (pinch_step: string, id: string, event: GestureEvent) => void;
+  OnPanEventCB: (action: number, id: string, event: GestureEvent | undefined) => void;
+  OnPinchEventCB: (pinch_step: string, id: string, event: GestureEvent | undefined) => void;
   InsertTextCallback: (text: string) => void;
   DeleteBackCallback: (length: number) => void;
   DeleteForwardCallback: (length: number) => void;

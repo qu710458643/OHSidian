@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { PrintAdapter } from '../adapter/PrintAdapter';
 
 function implPrintAdapter(): PrintAdapter {
-  return Inject.getOrCreate(PrintAdapter);
+  return getOrCreate(PrintAdapter);
 }
 
 function showPrintDialog(value: string) {

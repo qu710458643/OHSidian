@@ -28,18 +28,19 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { NotificationAdapter } from '../adapter/NotificationAdapter';
 import type { NotificationAdapterRequest } from '../interface/CommonInterface';
 
 function implNotificationAdapter(): NotificationAdapter {
-  return Inject.getOrCreate(NotificationAdapter);
+  return getOrCreate(NotificationAdapter);
 }
 
 async function sendNotification(request: NotificationAdapterRequest) {
   await implNotificationAdapter().sendNotification(request);
 }
 
+/** @throws BusinessError */
 async function closeNotification(notificationId: number) {
   await implNotificationAdapter().closeNotification(notificationId);
 }

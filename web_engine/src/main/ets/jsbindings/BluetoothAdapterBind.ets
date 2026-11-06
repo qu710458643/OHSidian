@@ -28,11 +28,11 @@
  */
 
 import lazy { BluetoothAdapter } from '../adapter/BluetoothAdapter';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import JsBindingUtils from '../utils/JsBindingUtils';
 
 function implBluetoothAdapter(): BluetoothAdapter {
-  return Inject.getOrCreate(BluetoothAdapter);
+  return getOrCreate(BluetoothAdapter);
 }
 
 function GetAdapterName(): string {

@@ -81,6 +81,7 @@ export class AppWindowAdapter extends BaseAdapter {
     return this.abilityManager.getProxy(id)?.getWindow();
   }
 
+  /** @throws BusinessError */
   private applyWindowTitleButtonVisible(id: number) {
     let proxy = this.abilityManager.getProxy(id);
     let preferences: WindowPreferences | undefined = proxy?.getWindowPreferences();
@@ -90,6 +91,7 @@ export class AppWindowAdapter extends BaseAdapter {
     proxy?.getWindow()?.setWindowTitleButtonVisible(preferences.maximizable, preferences.minimizable, preferences.closable);
   }
 
+  /** @throws BusinessError */
   private showWindowTitleButtons(id: number) {
     let proxy = this.abilityManager.getProxy(id);
     let preferences: WindowPreferences | undefined = proxy?.getWindowPreferences();
@@ -102,6 +104,7 @@ export class AppWindowAdapter extends BaseAdapter {
     proxy?.getWindow()?.setWindowTitleButtonVisible(true, true, true);
   }
 
+  /** @throws BusinessError */
   @LogMethod
   createWindow(param: NewWindowParam) {
     let abilityName: string = "EntryAbility";
@@ -170,6 +173,7 @@ export class AppWindowAdapter extends BaseAdapter {
       });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setMaximizable(id: number, maximizable: boolean) {
     let proxy = this.abilityManager.getProxy(id);
@@ -187,6 +191,7 @@ export class AppWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setMinimizable(id: number, minimizable: boolean) {
     let proxy = this.abilityManager.getProxy(id);
@@ -198,6 +203,7 @@ export class AppWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setClosable(id: number, closable: boolean) {
     let proxy = this.abilityManager.getProxy(id);
@@ -209,6 +215,7 @@ export class AppWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setWindowButtonVisibility(id: number, visible: boolean) {
     let proxy = this.abilityManager.getProxy(id);
@@ -232,6 +239,7 @@ export class AppWindowAdapter extends BaseAdapter {
     return false;
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setAlwaysOnTop(id: number, onTop: boolean) {
     let windowClass = this.getWindow(id);
@@ -322,6 +330,7 @@ export class AppWindowAdapter extends BaseAdapter {
     })
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setBounds(id: number,
             hasFrame: boolean,
@@ -369,6 +378,7 @@ export class AppWindowAdapter extends BaseAdapter {
       });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setWindowLimits(minWidth: number,
                   minHeight: number,
@@ -402,6 +412,7 @@ export class AppWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   maximize(id: number) {
     let windowClass = this.getWindow(id);
@@ -500,6 +511,7 @@ export class AppWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setBackgroundColor(id: number, argbColor: number) {
     let windowClass = this.getWindow(id);
@@ -512,6 +524,7 @@ export class AppWindowAdapter extends BaseAdapter {
     }
   }
 
+  /** @throws BusinessError */
   @LogMethod
   setOpacity(id: number, opacity: number) {
     let windowClass = this.getWindow(id);
@@ -613,12 +626,14 @@ export class AppWindowAdapter extends BaseAdapter {
     }
 	}
 
+  /** @throws BusinessError */
   @LogMethod
   setWindowModal(modal: boolean, id: number) {
     let windowStage = this.abilityManager.getProxy(id)?.getWindowStage();
     windowStage?.setWindowModal(modal);
   }
 
+  /** @throws BusinessError */
   @LogMethod
   getWindowStatus(id: number): window.WindowStatusType {
     let windowClass = this.getWindow(id);
@@ -713,6 +728,7 @@ export class AppWindowAdapter extends BaseAdapter {
       windowType: window.WindowType.TYPE_DIALOG,
       ctx: activeContext
     };
+    // @SuppressWarnings permission
     window.createWindow(config, (err: BusinessError, data) => {
       if (err.code) {
         LogUtil.error(TAG, 'Failed to create window. Cause: ' + JSON.stringify(err));
@@ -763,6 +779,7 @@ export class AppWindowAdapter extends BaseAdapter {
     });
   }
 
+  /** @throws BusinessError */
   @LogMethod
   getWindowId(id: number): number {
     let windowClass = this.getWindow(id);

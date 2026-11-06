@@ -28,13 +28,14 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { CursorAdapter } from '../adapter/CursorAdapter';
 
 function implCursorAdapter(): CursorAdapter {
-  return Inject.getOrCreate(CursorAdapter);
+  return getOrCreate(CursorAdapter);
 }
 
+/** @throws BusinessError */
 function setCursor(id: number, type: number) {
   implCursorAdapter().setCursor(id, type);
 }

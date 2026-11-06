@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { MimeTypeAdapter } from '../adapter/MimeTypeAdapter';
 
 function implMimeTypeAdapter(): MimeTypeAdapter {
-  return Inject.getOrCreate(MimeTypeAdapter);
+  return getOrCreate(MimeTypeAdapter);
 }
 
 function getExtensionByMimeType(mimeType: string): string[] {

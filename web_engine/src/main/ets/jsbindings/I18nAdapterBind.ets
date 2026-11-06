@@ -28,11 +28,11 @@
  */
 
 import JsBindingUtils from '../utils/JsBindingUtils';
-import Inject from '../common/InjectModule';
+import { getOrCreate } from 'web-di';
 import lazy { I18nAdapter } from '../adapter/I18nAdapter';
 
 function implI18nAdapter(): I18nAdapter {
-  return Inject.getOrCreate(I18nAdapter);
+  return getOrCreate(I18nAdapter);
 }
 
 function getLocaleLang(): string {

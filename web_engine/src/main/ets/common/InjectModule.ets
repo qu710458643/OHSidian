@@ -28,12 +28,13 @@
  */
 
 import common from '@ohos.app.ability.common';
-import { Container, interfaces, ContainerModule } from 'inversify';
+import { Container } from 'inversify';
+import { getContainer } from 'web-di';
 import { MODULE_TYPE } from "./ModuleType";
 import { Dependency, DependencyProvider } from '../interface/Dependency';
 
 export default class InjectModule {
-  private static container = new Container({ defaultScope: "Singleton" });
+  private static container: Container = getContainer();
   private static dependency: Dependency;
   private static isInject: boolean = false;
 
@@ -53,27 +54,6 @@ export default class InjectModule {
       InjectModule.isInject = true;
     } catch(err) {
       throw new Error('inject Module failed: ' + JSON.stringify(err));
-    }
-  }
-
-  static get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
-    return InjectModule.container.get<T>(serviceIdentifier);
-  }
-
-  static getOrCreate<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
-    try {
-      const module = InjectModule.container.get<T>(serviceIdentifier);
-      if (module) {
-        return module;
-      }
-    } catch (err) {
-      const loadMode = new ContainerModule((bind:interfaces.Bind) => {
-        bind(serviceIdentifier).toSelf()
-      });
-      InjectModule.container.load(loadMode);
-      return InjectModule.container.get<T>(serviceIdentifier);
-    } finally {
-      return InjectModule.container.get<T>(serviceIdentifier);
     }
   }
 
