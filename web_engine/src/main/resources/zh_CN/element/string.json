@@ -49,10 +49,6 @@
       "value": "是否允许直接访问文档文件夹"
     },
     {
-      "name": "desktop_dir",
-      "value": "是否允许直接访问桌面文件夹"
-    },
-    {
       "name": "upload_default_type_description",
       "value": "自定义文件"
     },

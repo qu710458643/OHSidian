@@ -69,10 +69,6 @@
       "value": "Documents requires user_grant permission"
     },
     {
-      "name": "desktop_dir",
-      "value": "Desktop requires user_grant permission"
-    },
-    {
       "name": "access_bluetooth",
       "value": "Used to access bluetooth"
     },

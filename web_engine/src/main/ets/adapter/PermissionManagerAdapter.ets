@@ -82,9 +82,6 @@ export class PermissionManagerAdapter extends BaseAdapter {
     ['directory_download', [
       'ohos.permission.READ_WRITE_DOWNLOAD_DIRECTORY',
     ]],
-    ['directory_desktop', [
-      'ohos.permission.READ_WRITE_DESKTOP_DIRECTORY',
-    ]],
     ['directory_document', [
       'ohos.permission.READ_WRITE_DOCUMENTS_DIRECTORY',
     ]],

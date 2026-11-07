@@ -70,16 +70,6 @@
         }
       },
       {
-        "name": "ohos.permission.READ_WRITE_DESKTOP_DIRECTORY",
-        "reason": "$string:desktop_dir",
-        "usedScene": {
-          "abilities": [
-            "FormAbility"
-          ],
-          "when":"always"
-        }
-      },
-      {
         "name": "ohos.permission.LOCATION",
         "reason": "$string:location",
         "usedScene": {

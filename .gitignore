@@ -62,6 +62,7 @@ build-profile.json5
 # Obsidian ASAR archive (large binary, distribution-restricted)
 *.asar
 !web_engine/src/main/resources/resfile/resources/app/obsidian.asar
+!web_engine/src/main/resources/resfile/resources/app/core.asar
 
 # Signing materials
 **/*.p12
