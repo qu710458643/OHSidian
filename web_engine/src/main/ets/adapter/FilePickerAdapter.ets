@@ -95,11 +95,20 @@ export class FilePickerAdapter extends BaseAdapter {
       .then((selectResult) => {
         try {
           if (file_access_persist) {
-            this.permissionManagerAdapter.fileAccessPersist(selectResult);
             this.permissionManagerAdapter.saveUris(selectResult);
+            // 先完成持久化授权，再激活本会话的沙箱路径策略，最后回调，确保选中的文件夹立即可按原始路径访问
+            this.permissionManagerAdapter.fileAccessPersist(selectResult, (persistCode: number) => {
+              LogUtil.info(TAG, `fileAccessPersist code: ${persistCode}`);
+              this.permissionManagerAdapter.activateFileAccessPersist(selectResult, (code: number) => {
+                LogUtil.info(TAG, `activateFileAccessPersist code: ${code}`);
+                selectResult = this.dirFilter(selectResult);
+                callback(JSON.stringify(selectResult));
+              });
+            });
+          } else {
+            selectResult = this.dirFilter(selectResult);
+            callback(JSON.stringify(selectResult));
           }
-          selectResult = this.dirFilter(selectResult);
-          callback(JSON.stringify(selectResult));
         } catch (err) {
           callback('');
           LogUtil.error(TAG, `select Foloder failed with err: ${JSON.stringify(err)}`);

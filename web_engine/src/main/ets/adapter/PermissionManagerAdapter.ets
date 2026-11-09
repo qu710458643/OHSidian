@@ -263,9 +263,12 @@ export class PermissionManagerAdapter extends BaseAdapter {
   }
 
   @LogMethod
-  public fileAccessPersist(uris: string[]) {
+  public fileAccessPersist(uris: string[], callback?: (code: number) => void) {
     if (uris.length === 0) {
       LogUtil.error(TAG, 'No URI needs to be persisted');
+      if (callback) {
+        callback(ERROR);
+      }
       return;
     }
     let policies = new Array<fileShare.PolicyInfo>();
@@ -278,8 +281,17 @@ export class PermissionManagerAdapter extends BaseAdapter {
       policies.push(policyReadWrite);
     });
     fileShare.persistPermission(policies)
+      .then(() => {
+        LogUtil.info(TAG, 'fileAccessPersist success');
+        if (callback) {
+          callback(CONFIRM);
+        }
+      })
       .catch((err: BusinessError<Array<fileShare.PolicyErrorResult>>) => {
         LogUtil.error(TAG, `fileAccessPersist failed: ${JSON.stringify(err)}`);
+        if (callback) {
+          callback(err.code);
+        }
       });
   }
 

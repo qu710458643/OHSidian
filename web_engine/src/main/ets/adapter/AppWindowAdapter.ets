@@ -32,7 +32,7 @@ import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import bundleManager from '@ohos.bundle.bundleManager';
 import { BusinessError } from '@ohos.base';
 import common from '@ohos.app.ability.common';
-import { contextConstant, StartOptions } from '@kit.AbilityKit';
+import { StartOptions } from '@kit.AbilityKit';
 import { display, window } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
@@ -145,8 +145,6 @@ export class AppWindowAdapter extends BaseAdapter {
     }).then((data) => {
       imagePixelMap = data;
       let options: StartOptions = {
-        processMode: contextConstant.ProcessMode.ATTACH_TO_STATUS_BAR_ITEM,
-        startupVisibility: param.show ? contextConstant.StartupVisibility.STARTUP_SHOW : contextConstant.StartupVisibility.STARTUP_HIDE,
         windowLeft: param.bounds.left - leftBorder,
         windowTop: param.bounds.top - topBorder,
         windowWidth: param.bounds.width + leftBorder + leftBorder,

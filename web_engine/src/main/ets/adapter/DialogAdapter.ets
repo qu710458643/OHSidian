@@ -184,10 +184,18 @@ export class DialogAdapter extends BaseAdapter {
         let filePaths = this.convertUrisToPaths(DocumentSelectResult);
         // 持久化文件夹访问权限，下次打开无需重复授权
         if (dialogSettings.properties_open_directory) {
-          this.permissionManagerAdapter.fileAccessPersist(DocumentSelectResult);
           this.permissionManagerAdapter.saveUris(DocumentSelectResult);
+          // 先完成持久化授权，再激活本会话的沙箱路径策略，最后回调，确保选中的文件夹立即可按原始路径访问
+          this.permissionManagerAdapter.fileAccessPersist(DocumentSelectResult, (persistCode: number) => {
+            LogUtil.info(TAG, 'fileAccessPersist code: ' + persistCode);
+            this.permissionManagerAdapter.activateFileAccessPersist(DocumentSelectResult, (code: number) => {
+              LogUtil.info(TAG, 'activateFileAccessPersist code: ' + code);
+              callback(filePaths, false);
+            });
+          });
+        } else {
+          callback(filePaths, false);
         }
-        callback(filePaths, false);
       }
     }).catch((err: BusinessError) => {
       LogUtil.error(TAG, 'DocumentViewPicker.select failed with err: ' + JSON.stringify(err));
